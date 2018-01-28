@@ -1,0 +1,25 @@
+# Common IDEs
+.idea
+.project
+.vscode
+.buildpath
+.sublime-project
+.sublime-workspace
+nbproject
+
+# Temp files
+*.tmp
+*.temp
+*.cache
+~*
+Thumbs.db
+
+# Project structure
+docs/*
+!docs/.gitkeep
+logs/*
+!logs/.gitkeep
+dist/*
+!dist/.gitkeep
+node_modules/*
+!node_modules/.gitkeep

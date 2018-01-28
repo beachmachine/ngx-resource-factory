@@ -1,0 +1,68 @@
+{
+  "name": "ngx-resource-factory",
+  "version": "0.0.1",
+  "description": "Interact with RESTful APIs with advanced features as caches and data stores.",
+  "main": "bundle/ngx-resource-factory.min.js",
+  "module": "module.js",
+  "typings": "module.d.ts",
+  "scripts": {
+    "test": "karma start ./karma/karma.conf.js",
+    "build": "rm -Rf ./dist && mkdir ./dist && tsc && webpack --config webpack/webpack.build.js && cp package.json README.md LICENSE.md ./dist/ && touch ./dist/.gitkeep",
+    "generatedocs": "compodoc src --tsconfig ./tsconfig.json --output ./docs --theme readthedocs --name 'ngx-resource-factory'"
+  },
+  "keywords": [
+    "angular",
+    "rest",
+    "restful",
+    "resource"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:beachmachine/ngx-resource-factory.git"
+  },
+  "author": "Andreas Stocker <andreas@stocker.co.it>",
+  "license": "MIT",
+  "devDependencies": {
+    "@angular/compiler": "^5.0.0",
+    "@angular/platform-browser": "^5.0.0",
+    "@angular/platform-browser-dynamic": "^5.0.0",
+    "@compodoc/compodoc": "^1.0.5",
+    "@types/jasmine": "^2.5.53",
+    "@types/jasminewd2": "^2.0.2",
+    "babel-polyfill": "^6.26.0",
+    "chrome-headless-launcher": "^0.1.5",
+    "codelyzer": "^4.0.1",
+    "jasmine-core": "^2.6.4",
+    "jasmine-spec-reporter": "^4.1.0",
+    "json-loader": "^0.5.7",
+    "karma": "^1.7.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cli": "^1.0.1",
+    "karma-coverage-istanbul-reporter": "^1.2.1",
+    "karma-jasmine": "^1.1.1",
+    "karma-jasmine-html-reporter": "^0.2.2",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-spec-reporter": "0.0.32",
+    "karma-webpack": "^2.0.9",
+    "protractor": "^5.1.2",
+    "puppeteer": "^1.0.0",
+    "reflect-metadata": "^0.1.10",
+    "rxjs": "^5.5.2",
+    "ts-loader": "^3.2.0",
+    "ts-node": "^3.2.0",
+    "tslint": "^5.7.0",
+    "tslint-loader": "^3.5.3",
+    "typedoc": "^0.9.0",
+    "typescript": "^2.4.2",
+    "uglifyjs": "^2.4.11",
+    "uglifyjs-webpack-plugin": "^1.1.6",
+    "webpack": "^3.10.0",
+    "zone.js": "^0.8.14"
+  },
+  "dependencies": {
+    "@angular/common": "^5.0.0",
+    "@angular/core": "^5.0.0",
+    "@angular/http": "~5.0.0",
+    "lodash": "^4.17.4"
+  }
+}

@@ -1,0 +1,17 @@
+version: '2'
+services:
+  # Node configuration
+  node:
+    build:
+      context: ./docker/node
+    environment:
+      NODE_RUN_UID: 1000
+      NODE_RUN_USER: user
+      NODE_RUN_GROUP: user
+    volumes:
+      - ./:/app
+    command: npm run runserver:hmr
+    # dns: 8.8.8.8
+    ports:
+      - "8080:8080"
+      - "9876:9876"
