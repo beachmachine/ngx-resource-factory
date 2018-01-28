@@ -1,5 +1,8 @@
-import {Injectable} from "@angular/core";
-import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from "@angular/common/http";
+import {Injectable, Type} from "@angular/core";
+import {
+    HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpRequest,
+    HttpResponse
+} from "@angular/common/http";
 
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
@@ -104,18 +107,19 @@ export abstract class ResourceBase {
 
     /**
      * Creates a resource model from the given payload.
-     * @param payload
+     * @param {object} payload Payload for the created object
+     * @param {Type<ResourceInstance>} instanceClass Class to instantiate (defaults to `instanceClass` on `options`)
      * @returns {ResourceModelObject}
      */
     @NeedsOptions()
-    protected makeResourceModel(payload?: any): ResourceModelObject {
+    protected makeResourceModel(payload: object, instanceClass?: Type<ResourceInstance>): ResourceModelObject {
         payload = payload || {};
 
         let
             options = this.getOptions(),
-            obj = new options.instanceClass();
+            obj = new (instanceClass || options.instanceClass)();
 
-        obj = Object.assign(obj, payload, obj);
+        obj = Object.assign(obj, payload);
         obj = this.contributeResourceModelProperties(obj);
 
         /*
@@ -164,10 +168,15 @@ export abstract class ResourceBase {
     protected executeResourceAction(query: any, payload: any, success: Function, error: Function, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             /*
+             * Model class to instantiate for the resource action.
+             */
+            instanceClass = actionOptions.instanceClass,
+
+            /*
              * Object that contains the actual result. Will be populated with the response data as soon as the response
              * is complete.
              */
-            resultObject = <ResourceModelResult>(actionOptions.isList ? this.makeResourceModelList([]) : this.makeResourceModel({})),
+            resultObject = <ResourceModelResult>(actionOptions.isList ? this.makeResourceModelList([]) : this.makeResourceModel({}, instanceClass)),
 
             /*
              * The request method verb. We need to explicitly ensure string type here so we can use it in the
@@ -181,14 +190,25 @@ export abstract class ResourceBase {
             url = this.buildUrl(query, payload, actionOptions),
 
             /*
+             * Build the http request headers from the action configuration, the query and the payload.
+             */
+            headers = this.buildHeaders(query, payload, actionOptions),
+
+            /*
+             * Use the `dump` method on the payload object if it is an `ResourceInstance` object to get the
+             * data representation that should be sent to the server. If the given payload is not a
+             * `ResourceInstance` object, then we give it directly to the `clean` method.
+             */
+            cleanedPayload = clean(payload instanceof ResourceInstance ? payload.dump() : payload),
+
+            /*
              * The request object for angular's `HttpClient` service.
              */
-            request = new HttpRequest(method, url, clean(payload), {
+            request = new HttpRequest(method, url, cleanedPayload, {
                 reportProgress: actionOptions.reportProgress,
                 responseType: actionOptions.responseType,
                 withCredentials: actionOptions.withCredentials,
-                //headers: ..., // TODO
-                //params: ..., // TODO
+                headers: headers,
             }),
 
             /*
@@ -217,7 +237,7 @@ export abstract class ResourceBase {
      * @param {ResourceActionOptions} actionOptions Configuration options of the resource action.
      * @returns {ResourceModelResult}
      */
-    protected executeResourceActionRequest(obj: ResourceModelResult, request: HttpRequest<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected executeResourceActionRequest(obj: ResourceModelResult, request: HttpRequest<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             self = this,
             resolved = false,
@@ -322,8 +342,8 @@ export abstract class ResourceBase {
     }
 
     /**
-     * Builds an URL from the given url suffix, the query data and the payload data. Will use the options of the
-     * resource instance to build the URL.
+     * Builds an URL from the given query data, the payload data and resource action options. Will use the options
+     * of the resource instance to build the URL.
      * @param {Object} query Query data.
      * @param {Object} payload Payload data.
      * @param {ResourceActionOptions} options Resource action options.
@@ -414,6 +434,37 @@ export abstract class ResourceBase {
         url.search = search ? '?' + search : '';
 
         return url.href;
+    }
+
+    /**
+     * Builds the HTTP headers from the given query data, the payload data and resource action options. Will use the
+     * options of the resource instance to build the headers.
+     * @param {Object} query Query data.
+     * @param {Object} payload Payload data.
+     * @param {ResourceActionOptions} options Resource action options.
+     * @returns {HttpHeaders}
+     */
+    protected buildHeaders(query: Object, payload: Object, options: ResourceActionOptions): HttpHeaders {
+        query = Object.assign({}, query);
+        payload = Object.assign({}, payload);
+
+        let
+            headers = new HttpHeaders();
+
+        /*
+         * Build the headers object if there is a default headers configuration on the
+         * action options.
+         */
+        if (options.headerDefaults) {
+            for (let headerDefault of options.headerDefaults) {
+                headers = headers.set(
+                    headerDefault.key,
+                    headerDefault.getValue(query, payload, options),
+                );
+            }
+        }
+
+        return headers;
     }
 
     /**
@@ -542,20 +593,19 @@ export abstract class ResourceBase {
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    @NeedsOptions()
     protected processListResponse(result: ResourceModelResult, response: HttpResponse<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
+            instanceClass = actionOptions.instanceClass,
             useDataAttr = actionOptions.dataAttr && actionOptions.useDataAttrForList && response.body,
             dataAttr = actionOptions.dataAttr,
             responseList = useDataAttr ? response.body[dataAttr] : response.body;
 
         // If the response does not contain a JSON list, we log an error and add nothing to the result array.
         if (!Array.isArray(responseList)) {
-            console.error(
+            throw new ResourceUnexpectedResponseError(
                 "Response does not contain a list of objects but `isList` is set " +
                 "to `true`."
             );
-            return;
         }
 
         // First we make sure the result array is empty.
@@ -563,7 +613,11 @@ export abstract class ResourceBase {
 
         // Now we add the response items, contributed with the resource model properties, to the result object.
         for (let item of responseList) {
-            result.push(this.makeResourceModel(item));
+            let
+                obj = this.makeResourceModel(item, instanceClass);
+
+            obj.load(item);
+            result.push(obj);
         }
 
         return result;
@@ -585,14 +639,15 @@ export abstract class ResourceBase {
 
         // If the response does not contain a JSON object, we log an error and add nothing to the result array.
         if (Array.isArray(responseObject)) {
-            console.error(
+            throw new ResourceUnexpectedResponseError(
                 "Response does contain a list of objects but `isList` is set " +
                 "to `false`."
             );
-            return;
         }
 
-        return Object.assign(result, responseObject, result);
+        result = <ResourceModelResult>result.load(responseObject);
+
+        return result;
     }
 }
 
@@ -653,6 +708,13 @@ export abstract class Resource<T extends ResourceInstance> extends ResourceBase 
  * it is actually set up.
  */
 export class ResourceNeedsOptionsError extends Error {}
+
+
+/**
+ * Exception that is thrown when a `Resource` method is used that needs the resource instance to be set up, before
+ * it is actually set up.
+ */
+export class ResourceUnexpectedResponseError extends Error {}
 
 
 /**

@@ -49,7 +49,17 @@ export function cleanObject(payload: Object): Object {
         resultPayload: Object = _.cloneDeep(payload);
 
     for (let propertyName in resultPayload) {
-        if (resultPayload.hasOwnProperty(propertyName) && propertyName[0] === '$') {
+        /*
+         * Remove private property
+         */
+        if (propertyName[0] === '$') {
+            delete resultPayload[propertyName];
+        }
+
+        /*
+         * Remove function
+         */
+        else if (typeof resultPayload[propertyName] === 'function') {
             delete resultPayload[propertyName];
         }
     }

@@ -8,6 +8,10 @@ import {ResourceInstance} from "./resource-instance";
 import {ResourceConfiguration} from "./resource-configuration";
 import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
+import {ResourceAction} from "./resource-action";
+import {ResourceActionMethod} from "./resource-action-method";
+import {ResourceHeaderDefault} from "./resource-header-default";
+import {ResourceParamDefault} from "./resource-param-default";
 
 
 /**
@@ -23,7 +27,9 @@ class TestModel extends ResourceInstance {
  * Resource definition used for testing purposes.
  */
 @Injectable()
-class TestResource extends Resource<TestModel> { }
+class TestResource extends Resource<TestModel> {
+
+}
 
 
 describe('Resource', () => {
@@ -269,6 +275,439 @@ describe('Resource', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
                 }).flush([{id: 1}, {id: 2}]);
+            })
+        )
+    );
+
+    it('Does set custom default headers from strings',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        headerDefaults: [
+                            new ResourceHeaderDefault('x-custom-header', '1234'),
+                        ]
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test();
+
+                backend.expectOne(req => {
+                    return req.headers.get('x-custom-header') === '1234';
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does set custom default headers from functions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        headerDefaults: [
+                            new ResourceHeaderDefault('x-custom-header', () => '1234'),
+                        ]
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test();
+
+                backend.expectOne(req => {
+                    return req.headers.get('x-custom-header') === '1234';
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does set custom default params from strings',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [
+                            new ResourceParamDefault('p', '1234'),
+                        ]
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:p/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test();
+
+                backend.expectOne({
+                    url: 'http://test/res/1234/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does set custom default params from functions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [
+                            new ResourceParamDefault('p', () => '1234'),
+                        ]
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:p/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test();
+
+                backend.expectOne({
+                    url: 'http://test/res/1234/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does instantiate as resource instance class on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result[0] instanceof TestModel).toBe(true);
+                        expect(result[1] instanceof TestModel).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does instantiate as resource instance class on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    resultStub = testResource.get({id: 1});
+
+                resultStub.$promise
+                    .then((result) => {
+                        expect(result instanceof TestModel).toBe(true);
+                    });
+
+                expect(resultStub instanceof TestModel).toBe(true);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does instantiate as resource action instance class on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test().$promise
+                    .then((result) => {
+                        expect(result[0] instanceof TestSpecificModel).toBe(true);
+                        expect(result[1] instanceof TestSpecificModel).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does instantiate as resource action instance class on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    resultStub = testResource.test({id: 1});
+
+                resultStub.$promise
+                    .then((result) => {
+                        expect(result instanceof TestSpecificModel).toBe(true);
+                    });
+
+                expect(resultStub instanceof TestSpecificModel).toBe(true);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does use `load` method on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public load(data: object): ResourceInstance {
+                        data['title'] = 'ok-' + data['title'];
+
+                        return super.load(data);
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test().$promise
+                    .then((result) => {
+                        expect(result[0].title).toBe('ok-a');
+                        expect(result[1].title).toBe('ok-b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does use `load` method on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public load(data: object): ResourceInstance {
+                        data['title'] = 'ok-' + data['title'];
+
+                        return super.load(data);
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    resultStub = testResource.test({id: 1});
+
+                resultStub.$promise
+                    .then((result) => {
+                        expect(result.title).toBe('ok-a');
+                    });
+
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does use `dump` method on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public dump(): object {
+                        let
+                            data = super.dump();
+
+                        data['title'] = 'ok-' + data['title'];
+
+                        return data;
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testPayload = new TestSpecificModel({
+                        title: 'a',
+                    });
+
+                testResource.test(testPayload);
+
+                backend.expectOne(req => {
+                    return req.body['title'] === 'ok-a';
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does use `dump` method on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public dump(): object {
+                        let
+                            data = super.dump();
+
+                        data['title'] = 'ok-' + data['title'];
+
+                        return data;
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        instanceClass: TestSpecificModel,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testPayload = new TestSpecificModel({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.test(testPayload);
+
+                backend.expectOne(req => {
+                    return req.body['title'] === 'ok-a';
+                }).flush({id: 1, title: 'a'});
             })
         )
     );

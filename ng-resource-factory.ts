@@ -19,6 +19,7 @@ export * from "./src/resource/resource-action-method";
 export * from "./src/resource/resource-action-options";
 export * from "./src/resource/resource-configuration";
 export * from "./src/resource/resource-configuration-options";
+export * from "./src/resource/resource-header-default";
 export * from "./src/resource/resource-instance";
 export * from "./src/resource/resource-model";
 export * from "./src/resource/resource-param-default";

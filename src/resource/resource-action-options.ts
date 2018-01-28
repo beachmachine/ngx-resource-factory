@@ -3,6 +3,7 @@ import {Type} from "@angular/core";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
 import {ResourceInstance} from "./resource-instance";
 import {ResourceParamDefault} from "./resource-param-default";
+import {ResourceHeaderDefault} from "./resource-header-default";
 
 
 /**
@@ -64,6 +65,11 @@ export interface ResourceActionOptions {
      * Default values for url parameters.
      */
     paramDefaults?: ResourceParamDefault[];
+
+    /**
+     * Default values for http headers.
+     */
+    headerDefaults?: ResourceHeaderDefault[];
 
     /**
      * Attribute name where to find the data on results.
