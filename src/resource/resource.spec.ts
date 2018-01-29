@@ -101,7 +101,7 @@ describe('Resource', () => {
         })
     );
 
-    it('Does keep trailing slash if PK omitted',
+    it('Does keep trailing slash if `pkAttr` omitted',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -121,7 +121,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does strip trailing slash if PK omitted',
+    it('Does strip trailing slash if `pkAttr` omitted',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -142,7 +142,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does keep trailing slash if PK given',
+    it('Does keep trailing slash if `pkAttr` given',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -162,7 +162,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does strip trailing slash if PK given',
+    it('Does strip trailing slash if `pkAttr` given',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -530,7 +530,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does use `load` method on lists',
+    it('Does use `load` method on resource REST methods for lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
@@ -548,7 +548,6 @@ describe('Resource', () => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.GET,
-                        instanceClass: TestSpecificModel,
                         isList: true,
                     })
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
@@ -558,7 +557,7 @@ describe('Resource', () => {
                     testResource = createResource(TestSpecificResource, {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
-                        instanceClass: TestModel,
+                        instanceClass: TestSpecificModel,
                     });
 
                 testResource.test().$promise
@@ -575,7 +574,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does use `load` method on objects',
+    it('Does use `load` method on resource REST methods for objects',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
@@ -593,7 +592,6 @@ describe('Resource', () => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.GET,
-                        instanceClass: TestSpecificModel,
                     })
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
@@ -602,15 +600,13 @@ describe('Resource', () => {
                     testResource = createResource(TestSpecificResource, {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
-                        instanceClass: TestModel,
-                    }),
-                    resultStub = testResource.test({id: 1});
+                        instanceClass: TestSpecificModel,
+                    });
 
-                resultStub.$promise
+                testResource.test({id: 1}).$promise
                     .then((result) => {
                         expect(result.title).toBe('ok-a');
                     });
-
 
                 backend.expectOne({
                     url: 'http://test/res/1/',
@@ -620,19 +616,16 @@ describe('Resource', () => {
         )
     );
 
-    it('Does use `dump` method on lists',
+    it('Does use `load` method on instance REST methods for lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
 
-                    public dump(): object {
-                        let
-                            data = super.dump();
-
+                    public load(data: object): ResourceInstance {
                         data['title'] = 'ok-' + data['title'];
 
-                        return data;
+                        return super.load(data);
                     }
 
                 }
@@ -641,7 +634,6 @@ describe('Resource', () => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.GET,
-                        instanceClass: TestSpecificModel,
                         isList: true,
                     })
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
@@ -651,22 +643,69 @@ describe('Resource', () => {
                     testResource = createResource(TestSpecificResource, {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
-                        instanceClass: TestModel,
+                        instanceClass: TestSpecificModel,
                     }),
-                    testPayload = new TestSpecificModel({
-                        title: 'a',
+                    testInstance = testResource.create();
+
+                delete testInstance['id'];
+                testInstance.$test().$promise
+                    .then((result) => {
+                        expect(result[0].title).toBe('ok-a');
+                        expect(result[1].title).toBe('ok-b');
                     });
 
-                testResource.test(testPayload);
-
-                backend.expectOne(req => {
-                    return req.body['title'] === 'ok-a';
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
                 }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
             })
         )
     );
 
-    it('Does use `dump` method on objects',
+    it('Does use `load` method on instance REST methods for objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public load(data: object): ResourceInstance {
+                        data['title'] = 'ok-' + data['title'];
+
+                        return super.load(data);
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestSpecificModel,
+                    }),
+                    testInstance = testResource.create({id: 1});
+
+                testInstance.$test().$promise
+                    .then((result) => {
+                        expect(result.title).toBe('ok-a');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does use `dump` method on resource REST methods for lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
@@ -677,7 +716,6 @@ describe('Resource', () => {
                             data = super.dump();
 
                         data['title'] = 'ok-' + data['title'];
-
                         return data;
                     }
 
@@ -687,7 +725,7 @@ describe('Resource', () => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.GET,
-                        instanceClass: TestSpecificModel,
+                        isList: true,
                     })
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
@@ -696,14 +734,146 @@ describe('Resource', () => {
                     testResource = createResource(TestSpecificResource, {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
-                        instanceClass: TestModel,
+                        instanceClass: TestSpecificModel,
                     }),
-                    testPayload = new TestSpecificModel({
+                    testInstance = testResource.create({
+                        title: 'a',
+                    });
+
+                testResource.test(testInstance);
+
+                backend.expectOne(req => {
+                    return req.body['title'] === 'ok-a';
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does use `dump` method on resource REST methods for objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public dump(): object {
+                        let
+                            data = super.dump();
+
+                        data['title'] = 'ok-' + data['title'];
+                        return data;
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestSpecificModel,
+                    }),
+                    testInstance = testResource.create({
                         id: 1,
                         title: 'a',
                     });
 
-                testResource.test(testPayload);
+                testResource.test(testInstance);
+
+                backend.expectOne(req => {
+                    return req.body['title'] === 'ok-a';
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does use `dump` method on instance REST methods for lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public dump(): object {
+                        let
+                            data = super.dump();
+
+                        data['title'] = 'ok-' + data['title'];
+                        return data;
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestSpecificModel,
+                    }),
+                    testInstance = testResource.create({
+                        title: 'a',
+                    });
+
+                delete testInstance['id'];
+                testInstance.$test();
+
+                backend.expectOne(req => {
+                    return req.body['title'] === 'ok-a';
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does use `dump` method on instance REST methods for objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                class TestSpecificModel extends TestModel {
+
+                    public dump(): object {
+                        let
+                            data = super.dump();
+
+                        data['title'] = 'ok-' + data['title'];
+                        return data;
+                    }
+
+                }
+
+                @Injectable()
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                    })
+                    test: ResourceActionMethod<any, any, TestSpecificModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestSpecificModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testInstance.$test();
 
                 backend.expectOne(req => {
                     return req.body['title'] === 'ok-a';
