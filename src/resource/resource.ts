@@ -61,6 +61,15 @@ export abstract class ResourceBase {
     constructor(protected http: HttpClient) {}
 
     /**
+     * Binds the given resource instance to the resource.
+     * @param {T} obj Resource instance
+     * @returns {T} The given resource instance bound to the resource
+     */
+    bind<T extends ResourceInstance>(obj: T): T {
+        return <any>this.contributeResourceModelProperties(obj);
+    }
+
+    /**
      * Gets the resource configurations. This method is just a stub method and will be replaced by the
      * `ResourceConfiguration` decorator.
      * @returns {ResourceConfigurationOptions}
@@ -479,22 +488,8 @@ export abstract class ResourceBase {
             contributedObject = <ResourceModelResult>obj;
 
         /*
-         * First we contribute the model properties to the object.
+         * First we contribute the current resource to the resource instance.
          */
-        Object.defineProperty(contributedObject, '$resolved', {
-            writable: false,
-            value: true,
-        });
-        Object.defineProperty(contributedObject, '$observable', {
-            get: function () {
-                return Observable.of(contributedObject);
-            },
-        });
-        Object.defineProperty(contributedObject, '$promise', {
-            get: function () {
-                return contributedObject.$observable.toPromise();
-            },
-        });
         Object.defineProperty(contributedObject, '$resource', {
             writable: false,
             value: self,

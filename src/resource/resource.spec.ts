@@ -885,7 +885,6 @@ describe('Resource', () => {
     it('Does respect `useDataAttrForList` resource configuration option on lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -913,7 +912,6 @@ describe('Resource', () => {
     it('Does ignore `useDataAttrForList` resource configuration option on objects',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -939,7 +937,6 @@ describe('Resource', () => {
     it('Does ignore `useDataAttrForObject` resource configuration option on lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -967,7 +964,6 @@ describe('Resource', () => {
     it('Does respect `useDataAttrForObject` resource configuration option on objects',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -993,7 +989,6 @@ describe('Resource', () => {
     it('Does ignore `useDataAttrForList` resource configuration option if `dataAttr` not set',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -1020,7 +1015,6 @@ describe('Resource', () => {
     it('Does ignore `useDataAttrForObject` resource configuration option if `dataAttr` not set',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',

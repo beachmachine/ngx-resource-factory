@@ -46,7 +46,7 @@ export function cleanList(payload: Object[]): Object[] {
  */
 export function cleanObject(payload: Object): Object {
     let
-        resultPayload: Object = _.cloneDeep(payload);
+        resultPayload: Object = clone(payload);
 
     for (let propertyName in resultPayload) {
         /*
@@ -65,4 +65,14 @@ export function cleanObject(payload: Object): Object {
     }
 
     return resultPayload;
+}
+
+
+/**
+ * Makes a deep clone of the given object.
+ * @param {T} obj
+ * @returns {T}
+ */
+export function clone<T>(obj: T): T {
+    return <T>_.cloneDeep(obj);
 }
