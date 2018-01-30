@@ -596,7 +596,7 @@ export abstract class ResourceBase {
     protected processListResponse(result: ResourceModelResult, response: HttpResponse<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             instanceClass = actionOptions.instanceClass,
-            useDataAttr = actionOptions.dataAttr && actionOptions.useDataAttrForList && response.body,
+            useDataAttr = actionOptions.dataAttr && response.body,
             dataAttr = actionOptions.dataAttr,
             responseList = useDataAttr ? response.body[dataAttr] : response.body;
 
@@ -633,7 +633,7 @@ export abstract class ResourceBase {
      */
     protected processObjectResponse(result: ResourceModelResult, response: HttpResponse<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
-            useDataAttr = actionOptions.dataAttr && actionOptions.useDataAttrForObject && response.body,
+            useDataAttr = actionOptions.dataAttr && response.body,
             dataAttr = actionOptions.dataAttr,
             responseObject = useDataAttr ? response.body[dataAttr] : response.body;
 

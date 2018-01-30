@@ -49,7 +49,7 @@ export interface ResourceConfigurationOptions {
     /**
      * Default values for url parameters.
      */
-    paramDefaults?: ResourceParamDefault[]; // TODO
+    paramDefaults?: ResourceParamDefault[];
 
     /**
      * Attribute name where to find the ID of objects.

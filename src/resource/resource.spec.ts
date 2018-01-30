@@ -881,4 +881,164 @@ describe('Resource', () => {
             })
         )
     );
+
+    it('Does respect `useDataAttrForList` resource configuration option on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does ignore `useDataAttrForList` resource configuration option on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                    });
+
+                testResource.get({id: 1}).$promise
+                    .then((result) => {
+                        expect(result.title).toBe('a');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does ignore `useDataAttrForObject` resource configuration option on lists',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        dataAttr: 'data',
+                        useDataAttrForObject: true,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does respect `useDataAttrForObject` resource configuration option on objects',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        dataAttr: 'data',
+                        useDataAttrForObject: true,
+                    });
+
+                testResource.get({id: 1}).$promise
+                    .then((result) => {
+                        expect(result.title).toBe('a');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({'data': {id: 1, title: 'a'}});
+            })
+        )
+    );
+
+    it('Does ignore `useDataAttrForList` resource configuration option if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        useDataAttrForList: true,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does ignore `useDataAttrForObject` resource configuration option if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        useDataAttrForObject: true,
+                    });
+
+                testResource.get({id: 1}).$promise
+                    .then((result) => {
+                        expect(result.title).toBe('a');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
 });

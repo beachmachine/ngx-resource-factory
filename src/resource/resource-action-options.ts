@@ -81,14 +81,4 @@ export interface ResourceActionOptions {
      */
     totalAttr?: string;
 
-    /**
-     * Use the `dataAttr` for list calls (e.g. `query`).
-     */
-    useDataAttrForList?: boolean;
-
-    /**
-     * Use the `dataAttr` for object calls (e.g. `get`).
-     */
-    useDataAttrForObject?: boolean;
-
 }

@@ -33,10 +33,10 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                     withCredentials: resourceOptions.withCredentials,
                     instanceClass: resourceOptions.instanceClass,
                     paramDefaults: resourceOptions.paramDefaults,
-                    dataAttr: resourceOptions.dataAttr,
                     totalAttr: resourceOptions.totalAttr,
-                    useDataAttrForList: resourceOptions.useDataAttrForList,
-                    useDataAttrForObject: resourceOptions.useDataAttrForObject,
+                    dataAttr: (actionOptions.isList && resourceOptions.useDataAttrForList) || (!actionOptions.isList && resourceOptions.useDataAttrForObject) ?
+                        resourceOptions.dataAttr :
+                        null,
                 },
 
                 /*
