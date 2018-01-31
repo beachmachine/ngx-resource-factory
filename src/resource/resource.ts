@@ -65,8 +65,29 @@ export abstract class ResourceBase {
      * @param {T} obj Resource instance
      * @returns {T} The given resource instance bound to the resource
      */
+    @NeedsOptions()
     bind<T extends ResourceInstance>(obj: T): ResourceModel<T> {
-        return <any>this.contributeResourceModelProperties(obj);
+        let
+            /*
+             * Options for the resource
+             */
+            options = this.getOptions(),
+
+            /*
+             * Given instance with the contributed resource instance methods
+             */
+            boundObj: any = this.contributeResourceModelProperties(obj);
+
+        /*
+         * If the resource is configured to set phantom IDs on object instantiation, we
+         * get the phantom ID generator class instance and let in generate the phantom id. This
+         * also implies that the `pkAttr` has to be configured.
+         */
+        if (boundObj && !boundObj[options.pkAttr] && options.generatePhantomIds && options.pkAttr) {
+            boundObj[options.pkAttr] = this.getPhantomIdGenerator().generate(boundObj);
+        }
+
+        return boundObj;
     }
 
     /**
@@ -98,7 +119,7 @@ export abstract class ResourceBase {
      * @returns {PhantomIdGenerator}
      */
     @NeedsOptions()
-    protected getPhantomIdGenerator(): PhantomIdGenerator {
+    getPhantomIdGenerator(): PhantomIdGenerator {
         let
             options = this.getOptions(),
             phantomIdGeneratorClass = options.phantomIdGeneratorClass;
@@ -129,16 +150,7 @@ export abstract class ResourceBase {
             obj = new (instanceClass || options.instanceClass)();
 
         obj = Object.assign(obj, payload);
-        obj = this.contributeResourceModelProperties(obj);
-
-        /*
-         * If the resource is configured to set phantom IDs on object instantiation, we
-         * get the phantom ID generator class instance and let in generate the phantom id. This
-         * also implies that the `pkAttr` has to be configured.
-         */
-        if (obj && !obj[options.pkAttr] && options.generatePhantomIds && options.pkAttr) {
-            obj[options.pkAttr] = this.getPhantomIdGenerator().generate(obj);
-        }
+        obj = this.bind(obj);
 
         return <ResourceModelObject>obj;
     }
@@ -667,6 +679,7 @@ export abstract class Resource<T extends ResourceInstance> extends ResourceBase 
 
     @ResourceAction({
         method: ResourceActionHttpMethod.GET,
+        paramDefaults: [],
         isList: true,
     })
     query: ResourceActionMethod<any, any, T[]>;
@@ -679,6 +692,7 @@ export abstract class Resource<T extends ResourceInstance> extends ResourceBase 
 
     @ResourceAction({
         method: ResourceActionHttpMethod.POST,
+        paramDefaults: [],
         isList: false,
     })
     save: ResourceActionMethod<any, any, T>;

@@ -9,7 +9,7 @@ export class NegativeIntGenerator implements PhantomIdGenerator {
     protected lastGeneratedPk: number = 0;
 
     generate(instance: ResourceInstance): string {
-        return '' + this.lastGeneratedPk--;
+        return '' + --this.lastGeneratedPk;
     }
 
     is(pk: string): boolean {

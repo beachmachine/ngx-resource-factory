@@ -87,4 +87,26 @@ export class ResourceInstance {
         return clone(this);
     }
 
+    /**
+     * Checks if the instance is a phantom instance, meaning that it has not yet been
+     * submitted to the server and does not come from the server.
+     * @returns {boolean}
+     */
+    public isPhantom(): boolean {
+        let
+            resource = this.$resource,
+            phantomIdGenerator = resource ? resource.getPhantomIdGenerator() : null,
+            pkAttr = resource ? resource.getOptions().pkAttr : null;
+
+        /*
+         * Return `null` if the instance is not bound to an resource, the bound
+         * resource does not have a configured `phantomIdGeneratorClass`, or the bound
+         * resource does not have a configured `pkAttr`.
+         */
+        if (!phantomIdGenerator || !pkAttr) {
+            return null;
+        }
+
+        return phantomIdGenerator.is(this[pkAttr]);
+    }
 }

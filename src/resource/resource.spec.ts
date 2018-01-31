@@ -12,6 +12,8 @@ import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
 import {ResourceHeaderDefault} from "./resource-header-default";
 import {ResourceParamDefault} from "./resource-param-default";
+import {NegativeIntGenerator} from "./phantom-id/negative-int-generator";
+import {Uuid4Generator} from "./phantom-id/uuid4-generator";
 
 
 /**
@@ -1038,7 +1040,7 @@ describe('Resource', () => {
 
     it('Does bind instance using `create` method',
         async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+            inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -1054,7 +1056,7 @@ describe('Resource', () => {
 
     it('Does bind instance using `bind` method',
         async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+            inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -1072,7 +1074,7 @@ describe('Resource', () => {
 
     it('Does not bind instance using `new`',
         async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+            inject([HttpTestingController], () => {
                 createResource(TestResource, {
                     url: 'http://test/res/:pk/',
                     pkAttr: 'id',
@@ -1089,7 +1091,7 @@ describe('Resource', () => {
 
     it('Does rebind instance using `bind`',
         async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+            inject([HttpTestingController], () => {
                 let
                     testResource1 = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
@@ -1108,6 +1110,73 @@ describe('Resource', () => {
                 testResource2.bind(testInstance);
 
                 expect(testInstance.$resource).toBe(testResource2);
+            })
+        )
+    );
+
+    it('Does generate phantom id using `create` method',
+        async(
+            inject([HttpTestingController], () => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create();
+
+                expect(testInstance.id).toBeDefined();
+            })
+        )
+    );
+
+    it('Does generate phantom id using `bind` method',
+        async(
+            inject([HttpTestingController], () => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = new TestModel();
+
+                expect(testInstance.id).not.toBeDefined();
+
+                testResource.bind(testInstance);
+
+                expect(testInstance.id).toBeDefined();
+            })
+        )
+    );
+
+    it('Does set default phantom id generator',
+        async(
+            inject([HttpTestingController], () => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                expect(testResource.getPhantomIdGenerator() instanceof NegativeIntGenerator).toBe(true);
+            })
+        )
+    );
+
+    it('Does set custom phantom id generator',
+        async(
+            inject([HttpTestingController], () => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        phantomIdGeneratorClass: Uuid4Generator,
+                        instanceClass: TestModel,
+                    });
+
+                expect(testResource.getPhantomIdGenerator() instanceof Uuid4Generator).toBe(true);
             })
         )
     );
