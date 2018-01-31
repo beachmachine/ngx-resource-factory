@@ -1180,4 +1180,152 @@ describe('Resource', () => {
             })
         )
     );
+
+    it('Does execute HTTP `GET` on `get` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.get(testInstance);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does execute HTTP `GET` on `query` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query();
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does execute HTTP `POST` on `save` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.save(testInstance);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.POST,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does execute HTTP `PATCH` on `update` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.update(testInstance);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.PATCH,
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does execute HTTP `DELETE` on `remove` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.remove(testInstance);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.DELETE,
+                }).flush('');
+            })
+        )
+    );
+
+    it('Does execute HTTP `PUT` on custom `test` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: false,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                testResource.test(testInstance);
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush({id: 1, test: 'a'});
+            })
+        )
+    );
 });
