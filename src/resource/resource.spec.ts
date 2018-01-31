@@ -10,8 +10,6 @@ import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
 import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
-import {ResourceHeaderDefault} from "./resource-header-default";
-import {ResourceParamDefault} from "./resource-param-default";
 import {NegativeIntGenerator} from "./phantom-id/negative-int-generator";
 import {Uuid4Generator} from "./phantom-id/uuid4-generator";
 
@@ -277,128 +275,6 @@ describe('Resource', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
                 }).flush([{id: 1}, {id: 2}]);
-            })
-        )
-    );
-
-    it('Does set custom default headers from strings',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
-                @Injectable()
-                class TestSpecificResource extends TestResource {
-                    @ResourceAction({
-                        method: ResourceActionHttpMethod.GET,
-                        headerDefaults: [
-                            new ResourceHeaderDefault('x-custom-header', '1234'),
-                        ]
-                    })
-                    test: ResourceActionMethod<any, any, TestModel>;
-                }
-
-                let
-                    testResource = createResource(TestSpecificResource, {
-                        url: 'http://test/res/:pk/',
-                        pkAttr: 'id',
-                        instanceClass: TestModel,
-                    });
-
-                testResource.test();
-
-                backend.expectOne(req => {
-                    return req.headers.get('x-custom-header') === '1234';
-                }).flush({id: 1});
-            })
-        )
-    );
-
-    it('Does set custom default headers from functions',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
-                @Injectable()
-                class TestSpecificResource extends TestResource {
-                    @ResourceAction({
-                        method: ResourceActionHttpMethod.GET,
-                        headerDefaults: [
-                            new ResourceHeaderDefault('x-custom-header', () => '1234'),
-                        ]
-                    })
-                    test: ResourceActionMethod<any, any, TestModel>;
-                }
-
-                let
-                    testResource = createResource(TestSpecificResource, {
-                        url: 'http://test/res/:pk/',
-                        pkAttr: 'id',
-                        instanceClass: TestModel,
-                    });
-
-                testResource.test();
-
-                backend.expectOne(req => {
-                    return req.headers.get('x-custom-header') === '1234';
-                }).flush({id: 1});
-            })
-        )
-    );
-
-    it('Does set custom default params from strings',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
-                @Injectable()
-                class TestSpecificResource extends TestResource {
-                    @ResourceAction({
-                        method: ResourceActionHttpMethod.GET,
-                        paramDefaults: [
-                            new ResourceParamDefault('p', '1234'),
-                        ]
-                    })
-                    test: ResourceActionMethod<any, any, TestModel>;
-                }
-
-                let
-                    testResource = createResource(TestSpecificResource, {
-                        url: 'http://test/res/:p/',
-                        pkAttr: 'id',
-                        instanceClass: TestModel,
-                    });
-
-                testResource.test();
-
-                backend.expectOne({
-                    url: 'http://test/res/1234/',
-                    method: ResourceActionHttpMethod.GET,
-                }).flush({id: 1});
-            })
-        )
-    );
-
-    it('Does set custom default params from functions',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
-                @Injectable()
-                class TestSpecificResource extends TestResource {
-                    @ResourceAction({
-                        method: ResourceActionHttpMethod.GET,
-                        paramDefaults: [
-                            new ResourceParamDefault('p', () => '1234'),
-                        ]
-                    })
-                    test: ResourceActionMethod<any, any, TestModel>;
-                }
-
-                let
-                    testResource = createResource(TestSpecificResource, {
-                        url: 'http://test/res/:p/',
-                        pkAttr: 'id',
-                        instanceClass: TestModel,
-                    });
-
-                testResource.test();
-
-                backend.expectOne({
-                    url: 'http://test/res/1234/',
-                    method: ResourceActionHttpMethod.GET,
-                }).flush({id: 1});
             })
         )
     );

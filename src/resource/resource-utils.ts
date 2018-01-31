@@ -8,15 +8,15 @@ import * as _ from "lodash";
  * @param {Object | Object[]} payload
  * @returns {Object | Object[]}
  */
-export function clean(payload: Object|Object[]): Object|Object[] {
+export function clean<T>(payload: T): T {
     // If payload is an array, call the method for cleaning lists
     if (Array.isArray(payload)) {
-        return cleanList(payload);
+        return <any>cleanList(payload);
     }
 
     // Else, call the method for cleaning objects
     else {
-        return cleanObject(payload);
+        return <any>cleanObject(payload);
     }
 }
 
@@ -26,15 +26,15 @@ export function clean(payload: Object|Object[]): Object|Object[] {
  * @param {Object[]} payload Objects to clean
  * @returns {Object[]}
  */
-export function cleanList(payload: Object[]): Object[] {
+export function cleanList<T extends Array<any>>(payload: T): T {
     let
-        resultPayload: Object[] = [];
+        resultPayload = [];
 
     for (let payloadItem of payload) {
         resultPayload.push(cleanObject(payloadItem));
     }
 
-    return resultPayload;
+    return <any>resultPayload;
 }
 
 
@@ -44,7 +44,7 @@ export function cleanList(payload: Object[]): Object[] {
  * @param {Object} payload Object to clean
  * @returns {Object} Cleaned object
  */
-export function cleanObject(payload: Object): Object {
+export function cleanObject<T extends Object>(payload: T): T {
     let
         resultPayload: Object = clone(payload);
 
@@ -64,7 +64,7 @@ export function cleanObject(payload: Object): Object {
         }
     }
 
-    return resultPayload;
+    return <any>resultPayload;
 }
 
 
