@@ -65,7 +65,7 @@ export abstract class ResourceBase {
      * @param {T} obj Resource instance
      * @returns {T} The given resource instance bound to the resource
      */
-    bind<T extends ResourceInstance>(obj: T): T {
+    bind<T extends ResourceInstance>(obj: T): ResourceModel<T> {
         return <any>this.contributeResourceModelProperties(obj);
     }
 

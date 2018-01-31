@@ -1035,4 +1035,80 @@ describe('Resource', () => {
             })
         )
     );
+
+    it('Does bind instance using `create` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create();
+
+                expect(testInstance.$resource).toBe(testResource);
+            })
+        )
+    );
+
+    it('Does bind instance using `bind` method',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = new TestModel();
+
+                testResource.bind(testInstance);
+
+                expect(testInstance.$resource).toBe(testResource);
+            })
+        )
+    );
+
+    it('Does not bind instance using `new`',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                createResource(TestResource, {
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                });
+
+                let
+                    testInstance = new TestModel();
+
+                expect(testInstance.$resource).toBe(null);
+            })
+        )
+    );
+
+    it('Does rebind instance using `bind`',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource1 = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testResource2 = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource1.create();
+
+                expect(testInstance.$resource).toBe(testResource1);
+
+                testResource2.bind(testInstance);
+
+                expect(testInstance.$resource).toBe(testResource2);
+            })
+        )
+    );
 });

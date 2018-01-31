@@ -10,4 +10,4 @@ export type ResourceModelMethods<T> = {
 }
 
 
-export type ResourceModel<T> = T & ResourceModelMethods<T> & ResourceInstance;
+export type ResourceModel<T> = T & ResourceInstance & ResourceModelMethods<T>;
