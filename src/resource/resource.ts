@@ -551,9 +551,16 @@ export abstract class ResourceBase {
 
                         break;
 
-                    // case: successCb
                     case 1:
-                        success = args[0];
+                        // case: successCb
+                        if (typeof args[0] === 'function') {
+                            success = args[0];
+                        }
+
+                        // case: query
+                        else {
+                            query = args[0];
+                        }
 
                         break;
                 }
