@@ -177,6 +177,68 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
+    it('Does not re-execute if cache TTL is not exceeded',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                        cacheTtl: 0.25,
+                    });
+
+                testResource.get({pk: 1});
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+
+                window.setTimeout(() => {
+                    testResource.get({pk: 1});
+
+                    backend.expectNone({
+                        url: 'http://test/res/1/',
+                        method: ResourceActionHttpMethod.GET,
+                    });
+                }, 125);
+            })
+        )
+    );
+
+    it('Does re-execute if cache TTL is exceeded',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                        cacheTtl: 0.25,
+                    });
+
+                testResource.get({pk: 1});
+
+                backend.expectOne({
+                    url: 'http://test/res/1/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({id: 1, title: 'a'});
+
+                window.setTimeout(() => {
+                    testResource.get({pk: 1});
+
+                    backend.expectOne({
+                        url: 'http://test/res/1/',
+                        method: ResourceActionHttpMethod.GET,
+                    }).flush({id: 1, title: 'a'});
+                }, 500);
+            })
+        )
+    );
+
     it('Does fetch data on multiple equal immediate cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {

@@ -21,6 +21,7 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
     useDataAttrForList: false,
     useDataAttrForObject: false,
     cacheClass: ResourceNoopCache,
+    cacheTtl: 3600,
     instanceClass: ResourceInstance,
 };
 

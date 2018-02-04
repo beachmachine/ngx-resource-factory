@@ -39,7 +39,7 @@ export interface ResourceConfigurationOptions {
     /**
      * Phantom ID generator class used for generating phantom IDs.
      */
-    phantomIdGeneratorClass?: Type<PhantomIdGenerator>; // TODO
+    phantomIdGeneratorClass?: Type<PhantomIdGenerator>;
 
     /**
      * List of resource services to clean the cache for on modifying requests.
@@ -84,7 +84,12 @@ export interface ResourceConfigurationOptions {
     /**
      * Resource cache class to use.
      */
-    cacheClass?: Type<ResourceCache>; // TODO
+    cacheClass?: Type<ResourceCache>;
+
+    /**
+     * Time to live for cache entries in seconds.
+     */
+    cacheTtl?: number;
 
     /**
      * Class to use to instantiate resource instances.

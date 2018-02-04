@@ -1,7 +1,7 @@
 import {HttpRequest} from "@angular/common/http";
 
-import {ResourceCache, ResourceCacheItemPromisable} from "./resource-cache";
-import {ResourceActionHttpMethod} from "../resource/resource-action-http-method";
+import {ResourceCache} from "./resource-cache";
+import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-item";
 
 
 /**
@@ -28,12 +28,17 @@ export class ResourceMemoryCache implements ResourceCache {
         let
             key = this.getKey(request);
 
-        // No key means not cacheable. Do nothing and return `null` in this case.
+        /*
+         * No key means not cacheable. Do nothing and return `null` in
+         * this case.
+         */
         if (!key) {
             return null;
         }
 
-        // Put the result on the cache.
+        /*
+         * Put the result on the cache.
+         */
         this.data.set(key, obj);
 
         return obj;
@@ -46,17 +51,28 @@ export class ResourceMemoryCache implements ResourceCache {
      */
     pop (request: HttpRequest<any>): ResourceCacheItemPromisable {
         let
-            key = this.getKey(request);
+            key = this.getKey(request),
+            obj;
 
-        // No key means not cacheable. Do nothing and return `null` in this case.
+        /*
+         * No key means not cacheable. Do nothing and return `null` in
+         * this case.
+         */
         if (!key || !this.data.has(key)) {
             return null;
         }
 
-        let
-            obj = this.data.get(key);
-
+        obj = this.data.get(key);
         this.data.delete(key);
+
+        /*
+         * Check if we are working on a resource cache item and if it is
+         * a stale object. If it is, return `null`.
+         */
+        if (obj instanceof ResourceCacheItem && obj.stale) {
+            obj = null;
+        }
+
         return obj;
     };
 
@@ -67,14 +83,29 @@ export class ResourceMemoryCache implements ResourceCache {
      */
     get (request: HttpRequest<any>): ResourceCacheItemPromisable {
         let
-            key = this.getKey(request);
+            key = this.getKey(request),
+            obj;
 
-        // No key means not cacheable. Do nothing and return `null` in this case.
+        /*
+         * No key means not cacheable. Do nothing and return `null` in
+         * this case.
+         */
         if (!key || !this.data.has(key)) {
             return null;
         }
 
-        return this.data.get(key);
+        obj = this.data.get(key);
+
+        /*
+         * Check if we are working on a resource cache item and if it is
+         * a stale object. If it is, remove it from the cache and return `null`.
+         */
+        if (obj instanceof ResourceCacheItem && obj.stale) {
+            this.data.delete(key);
+            obj = null;
+        }
+
+        return obj;
     };
 
     /**
@@ -83,10 +114,7 @@ export class ResourceMemoryCache implements ResourceCache {
      * @returns {boolean}
      */
     has (request: HttpRequest<any>): boolean {
-        let
-            key = this.getKey(request);
-
-        return key && this.data.has(key);
+        return this.get(request) !== null;
     };
 
     /**
@@ -104,12 +132,12 @@ export class ResourceMemoryCache implements ResourceCache {
      */
     protected getKey(request: HttpRequest<any>): string {
         /*
-         * We only want to generate cache keys for HTTP `GET` calls that expect "text" or "json" results.
+         * We only want to generate cache keys for HTTP `GET` or `HEAD` calls that expect "text" or "json" results.
          * On anything else just return `null`, meaning that the item will not be put on the cache.
          */
         if (
-            request.method !== ResourceActionHttpMethod.GET &&
-            ['json', 'text'].indexOf(request.responseType) !== -1
+            ['GET', 'HEAD'].indexOf(request.method) === -1 ||
+            ['json', 'text'].indexOf(request.responseType) === -1
         ) {
             return null;
         }

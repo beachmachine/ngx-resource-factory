@@ -288,6 +288,7 @@ export abstract class ResourceBase {
      * @param {ResourceActionOptions} actionOptions Configuration options of the resource action.
      * @returns {ResourceModelResult}
      */
+    @NeedsOptions()
     protected executeResourceActionRequest(obj: ResourceModelResult, request: HttpRequest<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             self = this,
@@ -301,6 +302,11 @@ export abstract class ResourceBase {
              * Cache instance used for the request.
              */
             cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
+
+            /*
+             * TTL for cache items in seconds.
+             */
+            cacheTtl = this.getOptions().cacheTtl,
 
             /*
              * The actual `HTTPClient` observable used for the request.
@@ -357,7 +363,7 @@ export abstract class ResourceBase {
                                         break;
                                     case HttpEventType.Response:
                                         let
-                                            cachedObj = new ResourceCacheItem(event, self, actionOptions);
+                                            cachedObj = new ResourceCacheItem(event, self, actionOptions, cacheTtl);
 
                                         resolved = true;
 

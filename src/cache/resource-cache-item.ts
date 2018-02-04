@@ -13,7 +13,7 @@ export class ResourceCacheItem {
 
     protected _timestamp: number;
 
-    constructor(protected _response: HttpResponse<any>, protected _resource: ResourceBase, protected _actionOptions: ResourceActionOptions) {
+    constructor(protected _response: HttpResponse<any>, protected _resource: ResourceBase, protected _actionOptions: ResourceActionOptions, protected _ttl: number) {
         this._timestamp = new Date().getTime();
     }
 
@@ -46,7 +46,15 @@ export class ResourceCacheItem {
      * @returns {number}
      */
     get timestamp() {
-        return this._timestamp;
+        return this._timestamp / 1000;
+    }
+
+    /**
+     * Gets if the cache item is already stale (exceeded its TTL).
+     * @returns {boolean}
+     */
+    get stale() {
+        return (this.timestamp + this._ttl) < (new Date().getTime() / 1000);
     }
 
     /**
@@ -57,3 +65,6 @@ export class ResourceCacheItem {
         // TODO
     }
 }
+
+
+export type ResourceCacheItemPromisable = ResourceCacheItem | Promise<ResourceCacheItem>;
