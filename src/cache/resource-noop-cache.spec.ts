@@ -63,7 +63,7 @@ describe('ResourceNoopCache', () => {
         })
     );
 
-    it('Does execute two calls on two equal immediate cacheable actions',
+    it('Does execute multiple calls on multiple equal immediate cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -76,13 +76,14 @@ describe('ResourceNoopCache', () => {
 
                 testResource.query();
                 testResource.query();
+                testResource.query();
 
-                expect(backend.match('http://test/res/').length).toBe(2);
+                expect(backend.match('http://test/res/').length).toBe(3);
             })
         )
     );
 
-    it('Does execute two calls on two equal cacheable actions',
+    it('Does execute multiple calls on multiple equal cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -106,11 +107,18 @@ describe('ResourceNoopCache', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
                 }).flush([{id: 1, title: 'a'}, {id: 1, title: 'a'}]);
+
+                testResource.query();
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 1, title: 'a'}]);
             })
         )
     );
 
-    it('Does execute two calls on two different cacheable actions',
+    it('Does execute multiple calls on multiple different cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -138,7 +146,7 @@ describe('ResourceNoopCache', () => {
         )
     );
 
-    it('Does execute two calls on two equal non-cacheable actions',
+    it('Does execute multiple calls on multiple equal non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -165,6 +173,130 @@ describe('ResourceNoopCache', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.POST,
                 }).flush({id: 2, title: 'a'});
+            })
+        )
+    );
+
+    it('Does fetch data on multiple equal immediate cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceNoopCache,
+                    }),
+                    reqeustMatches;
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                reqeustMatches = backend.match('http://test/res/');
+
+                expect(reqeustMatches.length).toBe(3);
+
+                for (let request of reqeustMatches) {
+                    request.flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+                }
+            })
+        )
+    );
+
+    it('Does fetch data on multiple equal delayed cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceNoopCache,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.length).toBe(2);
+
+
+                        expect(result[0].id).toBe(1);
+                        expect(result[1].id).toBe(2);
+
+                        expect(result[0].title).toBe('a');
+                        expect(result[1].title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
             })
         )
     );
