@@ -8,6 +8,7 @@ export * from "./src/module";
  */
 export * from "./src/cache/resource-cache";
 export * from "./src/cache/resource-memory-cache";
+export * from "./src/cache/resource-noop-cache";
 
 /**
  * Export resource
@@ -23,7 +24,6 @@ export * from "./src/resource/resource-header-default";
 export * from "./src/resource/resource-instance";
 export * from "./src/resource/resource-model";
 export * from "./src/resource/resource-param-default";
-export * from "./src/resource/resource-utils";
 
 /**
  * Export phantom id generator
@@ -37,3 +37,8 @@ export * from "./src/resource/phantom-id/uuid4-generator";
  */
 export * from "./src/store/resource-store";
 export * from "./src/store/resource-store-relation";
+
+/**
+ * Export utils
+ */
+export * from "./src/utils/resource-utils";

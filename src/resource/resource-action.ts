@@ -7,6 +7,7 @@ export const DEFAULT_RESOURCE_ACTION_OPTIONS: ResourceActionOptions = {
     method: ResourceActionHttpMethod.GET,
     isList: false,
     useCache: true,
+    invalidateCache: false,
     reportProgress: false,
     responseType: 'json',
 };
@@ -67,12 +68,12 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
             /*
              * Handle method signature where the method can be called as follows:
              * - query, payload, successCb, errorCb
-             * - payload, successCb, errorCb
+             * - query, successCb, errorCb
              * - query, payload, successCb
              * - successCb, errorCb
-             * - payload, successCb
+             * - query, successCb
              * - query, payload
-             * - payload
+             * - query
              */
             switch (args.length) {
                 // case: query, payload, successCb, errorCb
@@ -85,9 +86,9 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                     break;
 
                 case 3:
-                    // case: payload, successCb, errorCb
+                    // case: query, successCb, errorCb
                     if (typeof args[1] === 'function') {
-                        payload = args[0];
+                        query = args[0];
                         success = args[1];
                         error = args[2];
                     }
@@ -108,9 +109,9 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                         error = args[1];
                     }
 
-                    // case: payload, successCb
+                    // case: query, successCb
                     else if (typeof args[1] === 'function') {
-                        payload = args[0];
+                        query = args[0];
                         success = args[1];
                     }
 
@@ -122,9 +123,9 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
 
                     break;
 
-                // case: payload
+                // case: query
                 case 1:
-                    payload = args[0];
+                    query = args[0];
 
                     break;
             }

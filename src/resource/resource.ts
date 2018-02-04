@@ -18,8 +18,11 @@ import {ResourceInstance} from "./resource-instance";
 import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {clean} from "./resource-utils";
 import {PhantomIdGenerator} from "./phantom-id/phantom-id-generator";
+import {ResourceCache} from "../cache/resource-cache";
+import {ResourceNoopCache} from "../cache/resource-noop-cache";
+import {ResourceCacheItem} from "../cache/resource-cache-item";
+import {clean, isPromiseLike} from "../utils/resource-utils";
 
 
 /**
@@ -57,6 +60,12 @@ export abstract class ResourceBase {
      * @type {PhantomIdGenerator}
      */
     private phantomIdGenerator: PhantomIdGenerator;
+
+    /**
+     * Singleton instance of the configured cache class.
+     * @type {ResourceCache}
+     */
+    private cache: ResourceCache;
 
     constructor(protected http: HttpClient) {}
 
@@ -133,6 +142,27 @@ export abstract class ResourceBase {
         }
 
         return this.phantomIdGenerator;
+    }
+
+    /**
+     * Gets the cache class instance.
+     * @returns {ResourceCache}
+     */
+    @NeedsOptions()
+    getCache(): ResourceCache {
+        let
+            options = this.getOptions(),
+            cacheClass = options.cacheClass;
+
+        /*
+         * The phantom ID generator is a singleton, so only instantiate if not already
+         * instantiated.
+         */
+        if (!this.cache) {
+            this.cache = new cacheClass();
+        }
+
+        return this.cache;
     }
 
     /**
@@ -261,69 +291,188 @@ export abstract class ResourceBase {
     protected executeResourceActionRequest(obj: ResourceModelResult, request: HttpRequest<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             self = this,
+
+            /*
+             * Indicates whether the response object is resolved.
+             */
             resolved = false,
+
+            /*
+             * Cache instance used for the request.
+             */
+            cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
+
+            /*
+             * The actual `HTTPClient` observable used for the request.
+             */
             httpObservable = this.http.request(request),
+
+            /*
+             * Hot observable that wraps the `HTTPClient` observable.
+             */
             observable = Observable.create((observer: Observer<ResourceModelResult>) => {
-                httpObservable.subscribe(
-                    function next(event: HttpEvent<ResourceInstance>) {
-                        switch (event.type) {
-                            case HttpEventType.Sent:
-                                // TODO
-                                break;
-                            case HttpEventType.UploadProgress:
-                                // TODO
-                                break;
-                            case HttpEventType.ResponseHeader:
-                                // TODO
-                                break;
-                            case HttpEventType.DownloadProgress:
-                                // TODO
-                                break;
-                            case HttpEventType.Response:
-                                resolved = true;
+                let
+                    /*
+                     * Helper function that starts the actual HTTP request/response cycle by
+                     * subscribing to the `HTTPClient` observable.
+                     */
+                    progressWithHttpObservable = (httpObservable) => {
+                        let
+                            /*
+                             * Cache promise resolve function.
+                             */
+                            cacheResolve: Function = null,
 
-                                /*
-                                 * Contribute the request and response as properties to the object.
-                                 */
-                                obj = self.contributeResourceModelRequestResponse(obj, request, event);
+                            /*
+                             * Cache promise reject function.
+                             */
+                            cacheReject: Function = null,
 
-                                /*
-                                 * In case we expect a JSON list, process the list result and notify the observer.
-                                 */
-                                if (actionOptions.responseType === 'json' && actionOptions.isList) {
-                                    obj = self.processListResponse(obj, event, actionOptions);
-                                    observer.next(obj);
+                            /*
+                             * Cache promise.
+                             */
+                            cachePromise = new Promise((resolve, reject) => {
+                                cacheResolve = resolve;
+                                cacheReject = reject;
+                            });
+
+                        // Put the cache promise on the cache.
+                        cache.put(request, <Promise<ResourceCacheItem>>cachePromise);
+
+                        // Now we can execute the actual HTTP request/response cycle.
+                        httpObservable.subscribe(
+                            function next(event: HttpEvent<ResourceInstance>) {
+                                switch (event.type) {
+                                    case HttpEventType.Sent:
+                                        // TODO
+                                        break;
+                                    case HttpEventType.UploadProgress:
+                                        // TODO
+                                        break;
+                                    case HttpEventType.ResponseHeader:
+                                        // TODO
+                                        break;
+                                    case HttpEventType.DownloadProgress:
+                                        // TODO
+                                        break;
+                                    case HttpEventType.Response:
+                                        let
+                                            cachedObj = new ResourceCacheItem(event, self, actionOptions);
+
+                                        resolved = true;
+
+                                        /*
+                                         * If `invalidateCache` is set to `true` than we invalidate the
+                                         * cached data on the cache instance.
+                                         */
+                                        if (actionOptions.invalidateCache) {
+                                            cache.invalidate();
+                                        }
+
+                                        /*
+                                         * Else we put the result on the cache. Mind that it is the final
+                                         * decision of the cache implementation if the response is actually
+                                         * put on the cache. Usually a cache implementation only accepts HTTP
+                                         * `GET` responses with "text" or "json" data.
+                                         */
+                                        else {
+                                            // Put the cached item on the cache
+                                            cachedObj = <ResourceCacheItem>cache.put(request, cachedObj);
+                                        }
+
+                                        // Process the response
+                                        obj = self.contributeResourceModelRequestResponse(obj, request, event);
+                                        obj = self.processResponse(obj, event.body, actionOptions);
+
+                                        // Notify the observer
+                                        observer.next(obj);
+
+                                        // Resolve the cache promise
+                                        cacheResolve(cachedObj);
+
+                                        break;
+                                    case HttpEventType.User:
+                                        // TODO
+                                        break;
                                 }
+                            },
+                            function error(errorResponse: HttpErrorResponse) {
+                                cache.pop(request);
+                                observer.error(errorResponse);
 
-                                /*
-                                 * In case we expect a JSON object, process the object result and notify the observer.
-                                 */
-                                else if (actionOptions.responseType === 'json' && !actionOptions.isList) {
-                                    obj = self.processObjectResponse(obj, event, actionOptions);
-                                    observer.next(obj);
-                                }
-
-                                /*
-                                 * In case we expect anything else, there is no need to process the result. We just
-                                 * need to notify the observer with the resource model object.
-                                 */
-                                else {
-                                    observer.next(obj);
-                                }
-
-                                break;
-                            case HttpEventType.User:
-                                // TODO
-                                break;
-                        }
+                                cacheReject(errorResponse);
+                            },
+                            function complete() {
+                                observer.complete();
+                            }
+                        );
                     },
-                    function error(errorResponse: HttpErrorResponse) {
-                        observer.error(errorResponse);
-                    },
-                    function complete() {
+
+                    /*
+                     * Helper function that processes the response from the cache.
+                     */
+                    progressWithCachedItem = (cachedItem) => {
+                        let
+                            cacheObjResponse = cachedItem.response;
+
+                        resolved = true;
+
+                        // Process the response
+                        obj = self.contributeResourceModelRequestResponse(obj, request, cacheObjResponse);
+                        obj = self.processResponse(obj, cacheObjResponse.body, actionOptions);
+
+                        // Notify the observer
+                        observer.next(obj);
                         observer.complete();
+                    };
+
+                /*
+                 * If we have data for the given request on the cache, we publish it directly and complete
+                 * the observer.
+                 */
+                if (cache.has(request)) {
+                    let
+                        cacheObj = cache.get(request);
+
+                    /*
+                     * If we got a promise-like object from the cache, this means there is already an request in
+                     * progress, but we did not get a response yet. We need to wait for the promise to get
+                     * resolved and progress with the cached response then. In case the promise rejects (e.g. an
+                     * error occurred during the request/response), we progress with the http observable.
+                     */
+                    if (isPromiseLike(cacheObj)) {
+                        (<Promise<ResourceCacheItem>>cacheObj)
+                            /*
+                             * Promise resolved, so we can progress with the cached result.
+                             */
+                            .then((cacheObj) => {
+                                progressWithCachedItem(cacheObj);
+                            })
+
+                            /*
+                             * Promise rejected, so wen need to re-execute the HTTP call.
+                             */
+                            .catch((er) => {
+                                progressWithHttpObservable(httpObservable);
+                            });
                     }
-                )
+
+                    /*
+                     * If we directly get a cached result from the cache, we can progress with this
+                     * result without any further ado.
+                     */
+                    else {
+                        progressWithCachedItem(cacheObj);
+                    }
+                }
+
+                /*
+                 * If we don't have data for the given request on the cache, we need to execute the request
+                 * and put the result on the cache.
+                 */
+                else {
+                    progressWithHttpObservable(httpObservable);
+                }
             }).shareReplay(-1);
 
         /*
@@ -390,7 +539,7 @@ export abstract class ResourceBase {
             // If the url param is part of the query object
             if (query.hasOwnProperty(key)) {
                 let
-                    paramValue = query['key'];
+                    paramValue = query[key];
 
                 delete query[key];
                 return encodeURIComponent(paramValue) + keySuffix;
@@ -600,19 +749,47 @@ export abstract class ResourceBase {
     }
 
     /**
-     * Processes the list response, meaning that it iterates through the JSON list in the response, and
-     * pushes each item as resource model object on the result list.
+     * Processes the object or list response depending on the type of the given body. If it is a list
+     * this method will invoke `processListResponse` and if it is an object this method will
+     * invoke `processObjectResponse`. Will do nothing if the expected response type on the `actionOptions` is not
+     * set to "json".
      * @param {ResourceModelResult} result The result list that should contain the data.
-     * @param {HttpResponse} response The response object.
+     * @param {ResourceInstance} body The response body object.
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processListResponse(result: ResourceModelResult, response: HttpResponse<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected processResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
+        /*
+         * In case we expect a JSON list, process the list result and notify the observer.
+         */
+        if (actionOptions.responseType === 'json' && actionOptions.isList) {
+            result = this.processListResponse(result, body, actionOptions);
+        }
+
+        /*
+         * In case we expect a JSON object, process the object result and notify the observer.
+         */
+        else if (actionOptions.responseType === 'json' && !actionOptions.isList) {
+            result = this.processObjectResponse(result, body, actionOptions);
+        }
+
+        return result;
+    }
+
+    /**
+     * Processes the list response, meaning that it iterates through the JSON list in the response, and
+     * pushes each item as resource model object on the result list.
+     * @param {ResourceModelResult} result The result list that should contain the data.
+     * @param {ResourceInstance} body The response body object.
+     * @param {ResourceActionOptions} actionOptions The resource action configuration.
+     * @returns {ResourceModelResult}
+     */
+    protected processListResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
             instanceClass = actionOptions.instanceClass,
-            useDataAttr = actionOptions.dataAttr && response.body,
+            useDataAttr = actionOptions.dataAttr && body,
             dataAttr = actionOptions.dataAttr,
-            responseList = useDataAttr ? response.body[dataAttr] : response.body;
+            responseList = useDataAttr ? body[dataAttr] : body;
 
         // If the response does not contain a JSON list, we log an error and add nothing to the result array.
         if (!Array.isArray(responseList)) {
@@ -641,15 +818,15 @@ export abstract class ResourceBase {
      * Processes the object response, meaning that it checks if the response was a valid object response and
      * contributes the response data to the result object.
      * @param {ResourceModelResult} result The result list that should contain the data.
-     * @param {HttpResponse} response The response object.
+     * @param {ResourceInstance} body The response body object.
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processObjectResponse(result: ResourceModelResult, response: HttpResponse<ResourceInstance>, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected processObjectResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
-            useDataAttr = actionOptions.dataAttr && response.body,
+            useDataAttr = actionOptions.dataAttr && body,
             dataAttr = actionOptions.dataAttr,
-            responseObject = useDataAttr ? response.body[dataAttr] : response.body;
+            responseObject = useDataAttr ? body[dataAttr] : body;
 
         // If the response does not contain a JSON object, we log an error and add nothing to the result array.
         if (Array.isArray(responseObject)) {
@@ -701,18 +878,21 @@ export abstract class Resource<T extends ResourceInstance> extends ResourceBase 
         method: ResourceActionHttpMethod.POST,
         paramDefaults: [],
         isList: false,
+        invalidateCache: true,
     })
     save: ResourceActionMethod<any, any, T>;
 
     @ResourceAction({
         method: ResourceActionHttpMethod.PATCH,
         isList: false,
+        invalidateCache: true,
     })
     update: ResourceActionMethod<any, any, T>;
 
     @ResourceAction({
         method: ResourceActionHttpMethod.DELETE,
         isList: false,
+        invalidateCache: true,
     })
     remove: ResourceActionMethod<any, any, T>;
 

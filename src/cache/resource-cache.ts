@@ -1,4 +1,9 @@
-import {HttpRequest, HttpResponse} from "@angular/common/http";
+import {HttpRequest} from "@angular/common/http";
+
+import {ResourceCacheItem} from "./resource-cache-item";
+
+
+export type ResourceCacheItemPromisable = ResourceCacheItem | Promise<ResourceCacheItem>;
 
 
 /**
@@ -9,28 +14,34 @@ export interface ResourceCache {
     /**
      * Put that request/response pair on the cache.
      * @param {HttpRequest<any>} request
-     * @param {HttpResponse<any>} response
+     * @param {any} obj
      */
-    put: (request: HttpRequest<any>, response: HttpResponse<any>) => void;
+    put: (request: HttpRequest<any>, obj: ResourceCacheItemPromisable) => ResourceCacheItemPromisable;
 
     /**
      * Pop the response for a request from the cache.
      * @param {HttpRequest<any>} request
-     * @returns {HttpResponse<any>}
+     * @returns {any}
      */
-    pop: (request: HttpRequest<any>) => HttpResponse<any>;
+    pop: (request: HttpRequest<any>) => ResourceCacheItemPromisable;
 
     /**
      * Get the response for a request from the cache.
      * @param {HttpRequest<any>} request
-     * @returns {HttpResponse<any>}
+     * @returns {any}
      */
-    get: (request: HttpRequest<any>) => HttpResponse<any>;
+    get: (request: HttpRequest<any>) => ResourceCacheItemPromisable;
+
+    /**
+     * Checks if the given request is on the cache.
+     * @param {HttpRequest<any>} request
+     * @returns {boolean}
+     */
+    has: (request: HttpRequest<any>) => boolean;
 
     /**
      * Invalidate all data from the cache.
-     * @param {boolean} related Also invalidate all related caches.
      */
-    invalidate: (related: boolean) => void;
+    invalidate: () => void;
 
 }

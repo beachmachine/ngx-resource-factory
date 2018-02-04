@@ -76,3 +76,13 @@ export function cleanObject<T extends Object>(payload: T): T {
 export function clone<T>(obj: T): T {
     return <T>_.cloneDeep(obj);
 }
+
+
+/**
+ * Checks if the given object is a promise-like object (meaning that it has a `then` method).
+ * @param obj Object to check
+ * @returns {boolean} Is promise-like?
+ */
+export function isPromiseLike(obj: any): boolean {
+    return obj && typeof obj['then'] === 'function';
+}

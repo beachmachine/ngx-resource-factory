@@ -1,8 +1,8 @@
 import {HttpRequest, HttpResponse} from "@angular/common/http";
 import {Observable} from "rxjs/Observable";
 
-import {clean, clone} from "./resource-utils";
 import {ResourceBase} from "./resource";
+import {clean, clone} from "../utils/resource-utils";
 
 
 /**

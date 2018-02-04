@@ -130,7 +130,7 @@ describe('ResourceAction', () => {
         )
     );
 
-    it('Does take `payload`, `successCb` and `errorCb` on resource',
+    it('Does take `query`, `successCb` and `errorCb` on resource',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -142,19 +142,15 @@ describe('ResourceAction', () => {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
-                    }),
-                    testInstance = testResource.create({
-                        id: 1,
-                        title: 'a',
                     });
 
                 spyOn(cbs, 'success');
                 spyOn(cbs, 'error');
 
-                testResource.update(testInstance, cbs.success, cbs.error);
+                testResource.update({a: 1, b: 2}, cbs.success, cbs.error);
 
                 backend.expectOne({
-                    url: 'http://test/res/1/',
+                    url: 'http://test/res/?a=1&b=2',
                     method: ResourceActionHttpMethod.PATCH,
                 }).flush({id: 1, test: 'a'});
 
@@ -194,7 +190,7 @@ describe('ResourceAction', () => {
         )
     );
 
-    it('Does take `payload` and `successCb` on resource',
+    it('Does take `query` and `successCb` on resource',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -206,19 +202,15 @@ describe('ResourceAction', () => {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
-                    }),
-                    testInstance = testResource.create({
-                        id: 1,
-                        title: 'a',
                     });
 
                 spyOn(cbs, 'success');
                 spyOn(cbs, 'error');
 
-                testResource.update(testInstance, cbs.success);
+                testResource.update({a: 1, b: 2}, cbs.success);
 
                 backend.expectOne({
-                    url: 'http://test/res/1/',
+                    url: 'http://test/res/?a=1&b=2',
                     method: ResourceActionHttpMethod.PATCH,
                 }).flush({id: 1, test: 'a'});
 
@@ -262,7 +254,7 @@ describe('ResourceAction', () => {
         )
     );
 
-    it('Does take `payload` on resource',
+    it('Does take `query` on resource',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -274,19 +266,15 @@ describe('ResourceAction', () => {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
-                    }),
-                    testInstance = testResource.create({
-                        id: 1,
-                        title: 'a',
                     });
 
                 spyOn(cbs, 'success');
                 spyOn(cbs, 'error');
 
-                testResource.update(testInstance);
+                testResource.update({a: 1, b: 2});
 
                 backend.expectOne({
-                    url: 'http://test/res/1/',
+                    url: 'http://test/res/?a=1&b=2',
                     method: ResourceActionHttpMethod.PATCH,
                 }).flush({id: 1, test: 'a'});
 

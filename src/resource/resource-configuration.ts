@@ -1,8 +1,8 @@
 import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceInstance} from "./resource-instance";
 import {NegativeIntGenerator} from "./phantom-id/negative-int-generator";
-import {ResourceMemoryCache} from "../cache/resource-memory-cache";
 import {ResourceParamDefaultFromPayload} from "./resource-param-default";
+import {ResourceNoopCache} from "../cache/resource-noop-cache";
 
 
 export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOptions = {
@@ -20,7 +20,7 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
     totalAttr: null,
     useDataAttrForList: false,
     useDataAttrForObject: false,
-    cacheClass: ResourceMemoryCache,
+    cacheClass: ResourceNoopCache,
     instanceClass: ResourceInstance,
 };
 

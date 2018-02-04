@@ -116,7 +116,7 @@ describe('Resource', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
-                });
+                }).flush([{id: 1}, {id: 2}]);
             })
         )
     );
@@ -137,7 +137,7 @@ describe('Resource', () => {
                 backend.expectOne({
                     url: 'http://test/res',
                     method: ResourceActionHttpMethod.GET,
-                });
+                }).flush([{id: 1}, {id: 2}]);
             })
         )
     );
@@ -152,12 +152,12 @@ describe('Resource', () => {
                         instanceClass: TestModel,
                     });
 
-                testResource.get({id: 1});
+                testResource.get({pk: 1});
 
                 backend.expectOne({
                     url: 'http://test/res/1/',
                     method: ResourceActionHttpMethod.GET,
-                });
+                }).flush({id: 1});
             })
         )
     );
@@ -173,12 +173,12 @@ describe('Resource', () => {
                         stripTrailingSlashes: true,
                     });
 
-                testResource.get({id: 1});
+                testResource.get({pk: 1});
 
                 backend.expectOne({
                     url: 'http://test/res/1',
                     method: ResourceActionHttpMethod.GET,
-                });
+                }).flush({id: 1});
             })
         )
     );
@@ -312,7 +312,7 @@ describe('Resource', () => {
                         pkAttr: 'id',
                         instanceClass: TestModel,
                     }),
-                    resultStub = testResource.get({id: 1});
+                    resultStub = testResource.get({pk: 1});
 
                 resultStub.$promise
                     .then((result) => {
@@ -391,7 +391,7 @@ describe('Resource', () => {
                         pkAttr: 'id',
                         instanceClass: TestModel,
                     }),
-                    resultStub = testResource.test({id: 1});
+                    resultStub = testResource.test({pk: 1});
 
                 resultStub.$promise
                     .then((result) => {
@@ -481,7 +481,7 @@ describe('Resource', () => {
                         instanceClass: TestSpecificModel,
                     });
 
-                testResource.test({id: 1}).$promise
+                testResource.test({pk: 1}).$promise
                     .then((result) => {
                         expect(result.title).toBe('ok-a');
                     });
@@ -618,7 +618,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.test(testInstance);
+                testResource.test(null, testInstance);
 
                 backend.expectOne(req => {
                     return req.body['title'] === 'ok-a';
@@ -662,7 +662,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.test(testInstance);
+                testResource.test(null, testInstance);
 
                 backend.expectOne(req => {
                     return req.body['title'] === 'ok-a';
@@ -799,7 +799,7 @@ describe('Resource', () => {
                         useDataAttrForList: true,
                     });
 
-                testResource.get({id: 1}).$promise
+                testResource.get({pk: 1}).$promise
                     .then((result) => {
                         expect(result.title).toBe('a');
                     });
@@ -851,7 +851,7 @@ describe('Resource', () => {
                         useDataAttrForObject: true,
                     });
 
-                testResource.get({id: 1}).$promise
+                testResource.get({pk: 1}).$promise
                     .then((result) => {
                         expect(result.title).toBe('a');
                     });
@@ -901,7 +901,7 @@ describe('Resource', () => {
                         useDataAttrForObject: true,
                     });
 
-                testResource.get({id: 1}).$promise
+                testResource.get({pk: 1}).$promise
                     .then((result) => {
                         expect(result.title).toBe('a');
                     });
@@ -1065,13 +1065,9 @@ describe('Resource', () => {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
-                    }),
-                    testInstance = testResource.create({
-                        id: 1,
-                        title: 'a',
                     });
 
-                testResource.get(testInstance);
+                testResource.get({pk: 1});
 
                 backend.expectOne({
                     url: 'http://test/res/1/',
@@ -1115,7 +1111,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.save(testInstance);
+                testResource.save(null, testInstance);
 
                 backend.expectOne({
                     url: 'http://test/res/',
@@ -1139,7 +1135,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.update(testInstance);
+                testResource.update(null, testInstance);
 
                 backend.expectOne({
                     url: 'http://test/res/1/',
@@ -1163,7 +1159,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.remove(testInstance);
+                testResource.remove(null, testInstance);
 
                 backend.expectOne({
                     url: 'http://test/res/1/',
@@ -1195,7 +1191,7 @@ describe('Resource', () => {
                         title: 'a',
                     });
 
-                testResource.test(testInstance);
+                testResource.test(null, testInstance);
 
                 backend.expectOne({
                     url: 'http://test/res/1/',

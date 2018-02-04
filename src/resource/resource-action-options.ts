@@ -24,7 +24,13 @@ export interface ResourceActionOptions {
     /**
      * Use the cache for the request or bypass it.
      */
-    useCache?: boolean; // TODO
+    useCache?: boolean;
+
+    /**
+     * Invalidates the cache if the action was executed successfully. Mind that the action
+     * only invalidates the cache if `useCache` is set to `true`.
+     */
+    invalidateCache?: boolean; // TODO
 
     /**
      * Report progress on requests.
