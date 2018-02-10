@@ -1200,4 +1200,82 @@ describe('Resource', () => {
             })
         )
     );
+
+    it('Does get `arraybuffer` data',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        responseType: 'arraybuffer',
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    intArray = new Uint8Array([1, 2, 3, 4]),
+                    intArrayBuffer = intArray.buffer,
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test().$promise
+                    .then((result) => {
+                        let
+                            resultIntArray = new Uint8Array(result.$response.body);
+
+                        expect(resultIntArray[0]).toBe(1);
+                        expect(resultIntArray[1]).toBe(2);
+                        expect(resultIntArray[2]).toBe(3);
+                        expect(resultIntArray[3]).toBe(4);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush(intArrayBuffer);
+            })
+        )
+    );
+
+    it('Does get `blob` data',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        responseType: 'blob',
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    dataBlob = new Blob(['a', 'b', 'c', 'd'], {type : 'application/x-custom'}),
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.test().$promise
+                    .then((result) => {
+                        let
+                            reader = new FileReader();
+
+                        reader.addEventListener("loadend", function() {
+                            expect(reader.result).toBe('abcd');
+                        });
+
+                        reader.readAsText(result.$response.body, 'utf-8');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush(dataBlob);
+            })
+        )
+    );
 });

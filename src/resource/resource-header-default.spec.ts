@@ -31,7 +31,7 @@ class TestResource extends Resource<TestModel> {
 }
 
 
-describe('Resource', () => {
+describe('ResourceHeaderDefault', () => {
     /**
      * Creates a resource service for the given resource class with
      * the given resource configuration.
