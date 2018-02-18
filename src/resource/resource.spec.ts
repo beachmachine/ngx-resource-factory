@@ -1026,7 +1026,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does set default phantom id generator',
+    it('Does set default phantom generator',
         async(
             inject([HttpTestingController], () => {
                 let
@@ -1041,7 +1041,7 @@ describe('Resource', () => {
         )
     );
 
-    it('Does set custom phantom id generator',
+    it('Does set custom phantom generator',
         async(
             inject([HttpTestingController], () => {
                 let

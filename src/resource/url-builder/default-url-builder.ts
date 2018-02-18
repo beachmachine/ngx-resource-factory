@@ -24,7 +24,7 @@ export class DefaultUrlBuilder implements UrlBuilder {
             // If the url param is part of the query object
             if (query.hasOwnProperty(key)) {
                 let
-                    paramValue = query[key];
+                    paramValue = query[key] || '';
 
                 delete query[key];
                 return encodeURIComponent(paramValue) + keySuffix;

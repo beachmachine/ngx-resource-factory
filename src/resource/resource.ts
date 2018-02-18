@@ -489,11 +489,6 @@ export abstract class ResourceBase {
             }).shareReplay(-1);
 
         /*
-         * Contribute the request as property to the object.
-         */
-        obj = this.contributeResourceModelRequestResponse(obj, request);
-
-        /*
          * Contribute the request/response related model properties to the object.
          */
         Object.defineProperty(obj, '$resolved', {
@@ -520,6 +515,11 @@ export abstract class ResourceBase {
 
             },
         });
+
+        /*
+         * Contribute the request as property to the object.
+         */
+        obj = this.contributeResourceModelRequestResponse(obj, request);
 
         return obj;
     }
