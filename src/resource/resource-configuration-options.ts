@@ -1,9 +1,11 @@
 import {ResourceBase} from "./resource";
 import {ResourceParamDefault} from "./resource-param-default";
-import {PhantomIdGenerator} from "./phantom-id/phantom-id-generator";
+import {PhantomGenerator} from "./phantom-generator/phantom-generator";
 import {ResourceCache} from "../cache/resource-cache";
 import {Type} from "@angular/core/core";
 import {ResourceInstance} from "./resource-instance";
+import {HeaderBuilder} from "./header-builder/header-builder";
+import {UrlBuilder} from "./url-builder/url-builder";
 
 
 /**
@@ -32,14 +34,19 @@ export interface ResourceConfigurationOptions {
     withCredentials?: boolean;
 
     /**
-     * Generate IDs for phantom records.
-     */
-    generatePhantomIds?: boolean;
-
-    /**
      * Phantom ID generator class used for generating phantom IDs.
      */
-    phantomIdGeneratorClass?: Type<PhantomIdGenerator>;
+    phantomGeneratorClass?: Type<PhantomGenerator>;
+
+    /**
+     * Class to use to build the headers.
+     */
+    headerBuilderClass?: Type<HeaderBuilder>;
+
+    /**
+     * Class to use to build the url.
+     */
+    urlBuilderClass?: Type<UrlBuilder>;
 
     /**
      * List of resource services to clean the cache for on modifying requests.
@@ -59,7 +66,7 @@ export interface ResourceConfigurationOptions {
     /**
      * Attribute name where to find the URL of objects.
      */
-    urlAttr?: string; // TODO
+    urlAttr?: string;
 
     /**
      * Attribute name where to find the data on results.

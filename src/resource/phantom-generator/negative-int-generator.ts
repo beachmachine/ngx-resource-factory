@@ -1,11 +1,11 @@
-import {PhantomIdGenerator} from "./phantom-id-generator";
 import {ResourceInstance} from "../resource-instance";
+import {PhantomGenerator} from "./phantom-generator";
 
 
 /**
  * Phantom ID generator class for generating negative integer IDs,
  */
-export class NegativeIntGenerator implements PhantomIdGenerator {
+export class NegativeIntGenerator implements PhantomGenerator {
     protected lastGeneratedPk: number = 0;
 
     generate(instance: ResourceInstance): string {

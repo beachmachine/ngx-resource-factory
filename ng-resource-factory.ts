@@ -25,12 +25,27 @@ export * from "./src/resource/resource-instance";
 export * from "./src/resource/resource-model";
 export * from "./src/resource/resource-param-default";
 
+
 /**
- * Export phantom id generator
+ * Export header builder
  */
-export * from "./src/resource/phantom-id/phantom-id-generator";
-export * from "./src/resource/phantom-id/negative-int-generator";
-export * from "./src/resource/phantom-id/uuid4-generator";
+export * from "./src/resource/header-builder/header-builder";
+export * from "./src/resource/header-builder/default-header-builder";
+
+
+/**
+ * Export url builder
+ */
+export * from "./src/resource/url-builder/url-builder";
+export * from "./src/resource/url-builder/default-url-builder";
+
+
+/**
+ * Export phantom generator
+ */
+export * from "./src/resource/phantom-generator/phantom-generator";
+export * from "./src/resource/phantom-generator/negative-int-generator";
+export * from "./src/resource/phantom-generator/uuid4-generator";
 
 /**
  * Export store

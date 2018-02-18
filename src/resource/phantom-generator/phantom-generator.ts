@@ -4,7 +4,8 @@ import {ResourceInstance} from "../resource-instance";
 /**
  * Interface defining the signature of the phantom ID generator.
  */
-export interface PhantomIdGenerator {
+export interface PhantomGenerator {
+
     /**
      * Generates a new phantom ID.
      * @param {ResourceInstance} instance Instance to generate phantom ID for.

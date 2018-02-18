@@ -1,7 +1,7 @@
 import {HttpRequest} from "@angular/common/http";
 
 import {ResourceCache} from "./resource-cache";
-import {ResourceCacheItemPromisable} from "./resource-cache-item";
+import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-item";
 
 
 /**
@@ -26,6 +26,8 @@ export class ResourceNoopCache implements ResourceCache {
     has (request: HttpRequest<any>): boolean {
         return false;
     };
+
+    populate (urlAttr: string, items: ResourceCacheItem[]) {};
 
     invalidate () {};
 

@@ -1,8 +1,10 @@
 import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceInstance} from "./resource-instance";
-import {NegativeIntGenerator} from "./phantom-id/negative-int-generator";
+import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
 import {ResourceParamDefaultFromPayload} from "./resource-param-default";
 import {ResourceNoopCache} from "../cache/resource-noop-cache";
+import {DefaultHeaderBuilder} from "./header-builder/default-header-builder";
+import {DefaultUrlBuilder} from "./url-builder/default-url-builder";
 
 
 export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOptions = {
@@ -10,8 +12,9 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
     name: null,
     stripTrailingSlashes: false,
     withCredentials: true,
-    generatePhantomIds: true,
-    phantomIdGeneratorClass: NegativeIntGenerator,
+    phantomGeneratorClass: NegativeIntGenerator,
+    headerBuilderClass: DefaultHeaderBuilder,
+    urlBuilderClass: DefaultUrlBuilder,
     dependent: [],
     paramDefaults: [],
     pkAttr: 'pk',

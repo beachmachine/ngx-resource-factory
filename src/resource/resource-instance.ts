@@ -95,18 +95,18 @@ export class ResourceInstance {
     public isPhantom(): boolean {
         let
             resource = this.$resource,
-            phantomIdGenerator = resource ? resource.getPhantomIdGenerator() : null,
+            phantomGenerator = resource ? resource.getPhantomGenerator() : null,
             pkAttr = resource ? resource.getOptions().pkAttr : null;
 
         /*
          * Return `null` if the instance is not bound to an resource, the bound
-         * resource does not have a configured `phantomIdGeneratorClass`, or the bound
+         * resource does not have a configured `phantomGeneratorClass`, or the bound
          * resource does not have a configured `pkAttr`.
          */
-        if (!phantomIdGenerator || !pkAttr) {
+        if (!phantomGenerator || !pkAttr) {
             return null;
         }
 
-        return phantomIdGenerator.is(this[pkAttr]);
+        return phantomGenerator.is(this[pkAttr]);
     }
 }

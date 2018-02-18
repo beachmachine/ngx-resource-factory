@@ -1,6 +1,6 @@
 import {HttpRequest} from "@angular/common/http";
 
-import {ResourceCacheItemPromisable} from "./resource-cache-item";
+import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-item";
 
 
 /**
@@ -35,6 +35,11 @@ export interface ResourceCache {
      * @returns {boolean}
      */
     has: (request: HttpRequest<any>) => boolean;
+
+    /**
+     * Populates the cache with the given list of items.
+     */
+    populate: (urlAttr: string, items: ResourceCacheItem[]) => void;
 
     /**
      * Invalidate all data from the cache.

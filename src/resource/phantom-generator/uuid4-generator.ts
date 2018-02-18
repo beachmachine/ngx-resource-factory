@@ -1,11 +1,11 @@
-import {PhantomIdGenerator} from "./phantom-id-generator";
 import {ResourceInstance} from "../resource-instance";
+import {PhantomGenerator} from "./phantom-generator";
 
 
 /**
  * Phantom ID generator class for generating UUID4 IDs,
  */
-export class Uuid4Generator implements PhantomIdGenerator {
+export class Uuid4Generator implements PhantomGenerator {
     protected generated: string[] = [];
 
     generate(instance: ResourceInstance): string {

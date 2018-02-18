@@ -1,8 +1,5 @@
 import {Injectable, Type} from "@angular/core";
-import {
-    HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpHeaders, HttpRequest,
-    HttpResponse
-} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from "@angular/common/http";
 
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
@@ -18,10 +15,10 @@ import {ResourceInstance} from "./resource-instance";
 import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {PhantomIdGenerator} from "./phantom-id/phantom-id-generator";
+import {PhantomGenerator} from "./phantom-generator/phantom-generator";
 import {ResourceCache} from "../cache/resource-cache";
 import {ResourceNoopCache} from "../cache/resource-noop-cache";
-import {ResourceCacheItem} from "../cache/resource-cache-item";
+import {PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker} from "../cache/resource-cache-item";
 import {clean, isPromiseLike} from "../utils/resource-utils";
 
 
@@ -57,9 +54,9 @@ export abstract class ResourceBase {
 
     /**
      * Singleton instance of the configured phantom ID generator class.
-     * @type {PhantomIdGenerator}
+     * @type {PhantomGenerator}
      */
-    private phantomIdGenerator: PhantomIdGenerator;
+    private phantomGenerator: PhantomGenerator;
 
     /**
      * Singleton instance of the configured cache class.
@@ -85,15 +82,20 @@ export abstract class ResourceBase {
             /*
              * Given instance with the contributed resource instance methods
              */
-            boundObj: any = this.contributeResourceModelProperties(obj);
+            boundObj: any = this.contributeResourceModelProperties(obj),
+
+            /*
+             * Phantom ID generator instance
+             */
+            phantomGenerator = this.getPhantomGenerator();
 
         /*
          * If the resource is configured to set phantom IDs on object instantiation, we
          * get the phantom ID generator class instance and let in generate the phantom id. This
          * also implies that the `pkAttr` has to be configured.
          */
-        if (boundObj && !boundObj[options.pkAttr] && options.generatePhantomIds && options.pkAttr) {
-            boundObj[options.pkAttr] = this.getPhantomIdGenerator().generate(boundObj);
+        if (boundObj && !boundObj[options.pkAttr] && phantomGenerator && options.pkAttr) {
+            boundObj[options.pkAttr] = phantomGenerator.generate(boundObj);
         }
 
         return boundObj;
@@ -125,23 +127,31 @@ export abstract class ResourceBase {
 
     /**
      * Gets the phantom ID generator class instance.
-     * @returns {PhantomIdGenerator}
+     * @returns {PhantomGenerator}
      */
     @NeedsOptions()
-    getPhantomIdGenerator(): PhantomIdGenerator {
+    getPhantomGenerator(): PhantomGenerator {
         let
             options = this.getOptions(),
-            phantomIdGeneratorClass = options.phantomIdGeneratorClass;
+            phantomGeneratorClass = options.phantomGeneratorClass;
+
+        /*
+         * If the phantom ID generator class is set to `null`, we do not instantiate
+         * anything.
+         */
+        if (!phantomGeneratorClass) {
+            this.phantomGenerator = null;
+        }
 
         /*
          * The phantom ID generator is a singleton, so only instantiate if not already
          * instantiated.
          */
-        if (!this.phantomIdGenerator) {
-            this.phantomIdGenerator = new phantomIdGeneratorClass();
+        else if (!this.phantomGenerator) {
+            this.phantomGenerator = new phantomGeneratorClass();
         }
 
-        return this.phantomIdGenerator;
+        return this.phantomGenerator;
     }
 
     /**
@@ -238,12 +248,12 @@ export abstract class ResourceBase {
             /*
              * The URL for the request from built from the action configuration, the query and the payload.
              */
-            url = this.buildUrl(query, payload, actionOptions),
+            url = (new actionOptions.urlBuilderClass()).buildUrl(query, payload, actionOptions),
 
             /*
              * Build the http request headers from the action configuration, the query and the payload.
              */
-            headers = this.buildHeaders(query, payload, actionOptions),
+            headers = (new actionOptions.headerBuilderClass()).buildHeaders(query, payload, actionOptions),
 
             /*
              * Use the `dump` method on the payload object if it is an `ResourceInstance` object to get the
@@ -363,7 +373,7 @@ export abstract class ResourceBase {
                                         break;
                                     case HttpEventType.Response:
                                         let
-                                            cachedObj = new ResourceCacheItem(event, self, actionOptions, cacheTtl);
+                                            cachedObj = new ResourceCacheItem(event, self, cacheTtl);
 
                                         resolved = true;
 
@@ -376,19 +386,16 @@ export abstract class ResourceBase {
                                         }
 
                                         /*
-                                         * Else we put the result on the cache. Mind that it is the final
+                                         * Now we put the result on the cache. Mind that it is the final
                                          * decision of the cache implementation if the response is actually
                                          * put on the cache. Usually a cache implementation only accepts HTTP
                                          * `GET` responses with "text" or "json" data.
                                          */
-                                        else {
-                                            // Put the cached item on the cache
-                                            cachedObj = <ResourceCacheItem>cache.put(request, cachedObj);
-                                        }
+                                        cachedObj = <ResourceCacheItem>cache.put(request, cachedObj);
 
                                         // Process the response
                                         obj = self.contributeResourceModelRequestResponse(obj, request, event);
-                                        obj = self.processResponse(obj, event.body, actionOptions);
+                                        obj = self.processResponse(obj, request, event, actionOptions);
 
                                         // Notify the observer
                                         observer.next(obj);
@@ -425,7 +432,7 @@ export abstract class ResourceBase {
 
                         // Process the response
                         obj = self.contributeResourceModelRequestResponse(obj, request, cacheObjResponse);
-                        obj = self.processResponse(obj, cacheObjResponse.body, actionOptions);
+                        obj = self.processResponse(obj, request, cacheObjResponse, actionOptions);
 
                         // Notify the observer
                         observer.next(obj);
@@ -515,132 +522,6 @@ export abstract class ResourceBase {
         });
 
         return obj;
-    }
-
-    /**
-     * Builds an URL from the given query data, the payload data and resource action options. Will use the options
-     * of the resource instance to build the URL.
-     * @param {Object} query Query data.
-     * @param {Object} payload Payload data.
-     * @param {ResourceActionOptions} options Resource action options.
-     * @returns {string}
-     */
-    protected buildUrl(query: Object, payload: Object, options: ResourceActionOptions): string {
-        query = Object.assign({}, query);
-        payload = Object.assign({}, payload);
-
-        let
-            urlSuffix = options.urlSuffix || '',
-            url = new URL(urlSuffix ? options.url + urlSuffix : options.url, window.location.href || null),
-            urlRegex = new RegExp('(:)(\\w+)(\\W|$)', 'g'),
-            pathname = url.pathname || '',
-            search = url.search || '',
-            paramDefaults = options.paramDefaults || [],
-            paramDefaultKeys = paramDefaults.map(v => v.key);
-
-        /*
-         * Build the pathname with the query and the param defaults
-         */
-        pathname = pathname.replace(urlRegex, function (match, keyPrefix, key, keySuffix) {
-            // If the url param is part of the query object
-            if (query.hasOwnProperty(key)) {
-                let
-                    paramValue = query[key];
-
-                delete query[key];
-                return encodeURIComponent(paramValue) + keySuffix;
-            }
-
-            // Else check if we have a default for the url param
-            else {
-                let
-                    paramDefaultIndex = paramDefaultKeys.indexOf(key);
-
-                // If we found a default param, put its value on the URL
-                if (paramDefaultIndex !== -1) {
-                    let
-                        paramDefaultValue = options.paramDefaults[paramDefaultIndex].getValue(query, payload, options);
-
-                    // If the param default getter returns a value that can be put in the url, put it in the url
-                    if (paramDefaultValue !== undefined && paramDefaultValue !== null) {
-                        return encodeURIComponent(options.paramDefaults[paramDefaultIndex].getValue(query, payload, options)) + keySuffix;
-                    }
-
-                    // Else just remove the url param from the url
-                    else {
-                        return '';
-                    }
-                }
-
-                // Else just remove the url param from the url
-                else {
-                    return '';
-                }
-            }
-        });
-
-        /*
-         * Build the search params
-         */
-        search = (search ? search.substring(1) + '&' : '') + Object.keys(query).map(function (key) {
-            let
-                value = query[key];
-
-            // If the given value is an array, add each value with the given key
-            if (Array.isArray(value)) {
-                return value.map(function (innerValue) {
-                    return key + '=' + encodeURIComponent(innerValue);
-                }).join('&');
-            }
-
-            // Else we just return the key with its value
-            else {
-                return key + '=' + encodeURIComponent(query[key]);
-            }
-        }).join('&');
-
-        /*
-         * Strip all trailing slashes from path if configured so
-         */
-        if (options.stripTrailingSlashes) {
-            pathname = pathname.replace(/[/]+$/g, '');
-        }
-
-        url.pathname = pathname;
-        url.search = search ? '?' + search : '';
-
-        return url.href;
-    }
-
-    /**
-     * Builds the HTTP headers from the given query data, the payload data and resource action options. Will use the
-     * options of the resource instance to build the headers.
-     * @param {Object} query Query data.
-     * @param {Object} payload Payload data.
-     * @param {ResourceActionOptions} options Resource action options.
-     * @returns {HttpHeaders}
-     */
-    protected buildHeaders(query: Object, payload: Object, options: ResourceActionOptions): HttpHeaders {
-        query = Object.assign({}, query);
-        payload = Object.assign({}, payload);
-
-        let
-            headers = new HttpHeaders();
-
-        /*
-         * Build the headers object if there is a default headers configuration on the
-         * action options.
-         */
-        if (options.headerDefaults) {
-            for (let headerDefault of options.headerDefaults) {
-                headers = headers.set(
-                    headerDefault.key,
-                    headerDefault.getValue(query, payload, options),
-                );
-            }
-        }
-
-        return headers;
     }
 
     /**
@@ -760,23 +641,24 @@ export abstract class ResourceBase {
      * invoke `processObjectResponse`. Will do nothing if the expected response type on the `actionOptions` is not
      * set to "json".
      * @param {ResourceModelResult} result The result list that should contain the data.
-     * @param {ResourceInstance} body The response body object.
+     * @param {HttpRequest} request Request instance to contribute.
+     * @param {HttpResponse} response Response instance to contribute.
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected processResponse(result: ResourceModelResult, request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         /*
          * In case we expect a JSON list, process the list result and notify the observer.
          */
         if (actionOptions.responseType === 'json' && actionOptions.isList) {
-            result = this.processListResponse(result, body, actionOptions);
+            result = this.processListResponse(result, request, response, actionOptions);
         }
 
         /*
          * In case we expect a JSON object, process the object result and notify the observer.
          */
         else if (actionOptions.responseType === 'json' && !actionOptions.isList) {
-            result = this.processObjectResponse(result, body, actionOptions);
+            result = this.processObjectResponse(result, request, response, actionOptions);
         }
 
         return result;
@@ -786,21 +668,27 @@ export abstract class ResourceBase {
      * Processes the list response, meaning that it iterates through the JSON list in the response, and
      * pushes each item as resource model object on the result list.
      * @param {ResourceModelResult} result The result list that should contain the data.
-     * @param {ResourceInstance} body The response body object.
+     * @param {HttpRequest} request Request instance to contribute.
+     * @param {HttpResponse} response Response instance to contribute.
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processListResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected processListResponse(result: ResourceModelResult, request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
+            self = this,
             instanceClass = actionOptions.instanceClass,
-            useDataAttr = actionOptions.dataAttr && body,
+            cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
+            cacheTtl = this.getOptions().cacheTtl,
+            body = response.body,
+            useDataAttr = actionOptions.dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
             dataAttr = actionOptions.dataAttr,
-            responseList = useDataAttr ? body[dataAttr] : body;
+            urlAttr = actionOptions.urlAttr,
+            responseList = (useDataAttr ? body[dataAttr] : body) || null;
 
         // If the response does not contain a JSON list, we log an error and add nothing to the result array.
-        if (!Array.isArray(responseList)) {
+        if (responseList !== null && (typeof responseList !== 'object' || responseList.constructor !== Array)) {
             throw new ResourceUnexpectedResponseError(
-                "Response does not contain a list of objects but `isList` is set " +
+                "Response does not contain an array literal but `isList` is set " +
                 "to `true`."
             );
         }
@@ -809,12 +697,33 @@ export abstract class ResourceBase {
         result.length = 0;
 
         // Now we add the response items, contributed with the resource model properties, to the result object.
-        for (let item of responseList) {
-            let
-                obj = this.makeResourceModel(item, instanceClass);
+        if (responseList !== null) {
+            for (let item of responseList) {
+                let
+                    prepopulateCache = urlAttr && item && item[urlAttr] && !response[ResourceCacheItemMarker.CACHED],
+                    obj = this.makeResourceModel(item, instanceClass);
 
-            obj.load(item);
-            result.push(obj);
+                obj.load(item);
+                result.push(obj);
+
+                // Populate the cache with the raw item if we have an `urlAttr`
+                if (prepopulateCache) {
+                    let
+                        fakeRequest = request.clone({
+                            body: null,
+                            method: ResourceActionHttpMethod.GET,
+                            params: null,
+                            url: item[urlAttr],
+                        }),
+                        fakeResponse = response.clone({
+                            body: item,
+                            url: item[urlAttr],
+                        }),
+                        cachedObj = new PrepopulatedResourceCacheItem(fakeResponse, self, cacheTtl);
+
+                    cache.put(fakeRequest, cachedObj);
+                }
+            }
         }
 
         return result;
@@ -824,25 +733,30 @@ export abstract class ResourceBase {
      * Processes the object response, meaning that it checks if the response was a valid object response and
      * contributes the response data to the result object.
      * @param {ResourceModelResult} result The result list that should contain the data.
-     * @param {ResourceInstance} body The response body object.
+     * @param {HttpRequest} request Request instance to contribute.
+     * @param {HttpResponse} response Response instance to contribute.
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processObjectResponse(result: ResourceModelResult, body: ResourceInstance, actionOptions: ResourceActionOptions): ResourceModelResult {
+    protected processObjectResponse(result: ResourceModelResult, request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
         let
-            useDataAttr = actionOptions.dataAttr && body,
+            body = response.body,
+            useDataAttr = actionOptions.dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
             dataAttr = actionOptions.dataAttr,
-            responseObject = useDataAttr ? body[dataAttr] : body;
+            responseObject = (useDataAttr ? body[dataAttr] : body) || null;
 
         // If the response does not contain a JSON object, we log an error and add nothing to the result array.
-        if (Array.isArray(responseObject)) {
+        if (responseObject !== null && (typeof responseObject !== 'object' || responseObject.constructor !== Object)) {
             throw new ResourceUnexpectedResponseError(
-                "Response does contain a list of objects but `isList` is set " +
+                "Response does not contain an object literal but `isList` is set " +
                 "to `false`."
             );
         }
 
-        result = <ResourceModelResult>result.load(responseObject);
+        // On responses with data we use the `load` method of the result object to transform the data.
+        if (responseObject !== null) {
+            result = <ResourceModelResult>result.load(responseObject);
+        }
 
         return result;
     }
@@ -932,7 +846,7 @@ function NeedsOptions() {
 
         descriptor.value = function (...args: any[]) {
             // First we need to check if the resource instance is set up correctly
-            if (!this.getOptions()) {
+            if (this.getOptions() === null) {
                 throw new ResourceNeedsOptionsError(
                     "The resource is not setup correctly. Did you use the " +
                     "@ResourceConfiguration decorator?"

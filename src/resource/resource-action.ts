@@ -32,8 +32,11 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                     url: resourceOptions.url,
                     stripTrailingSlashes: resourceOptions.stripTrailingSlashes,
                     withCredentials: resourceOptions.withCredentials,
+                    headerBuilderClass: resourceOptions.headerBuilderClass,
+                    urlBuilderClass: resourceOptions.urlBuilderClass,
                     instanceClass: resourceOptions.instanceClass,
                     paramDefaults: resourceOptions.paramDefaults,
+                    urlAttr: resourceOptions.urlAttr,
                     totalAttr: resourceOptions.totalAttr,
                     dataAttr: (actionOptions.isList && resourceOptions.useDataAttrForList) || (!actionOptions.isList && resourceOptions.useDataAttrForObject) ?
                         resourceOptions.dataAttr :

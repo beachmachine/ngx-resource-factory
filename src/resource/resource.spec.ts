@@ -10,8 +10,8 @@ import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
 import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
-import {NegativeIntGenerator} from "./phantom-id/negative-int-generator";
-import {Uuid4Generator} from "./phantom-id/uuid4-generator";
+import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
+import {Uuid4Generator} from "./phantom-generator/uuid4-generator";
 
 
 /**
@@ -1036,7 +1036,7 @@ describe('Resource', () => {
                         instanceClass: TestModel,
                     });
 
-                expect(testResource.getPhantomIdGenerator() instanceof NegativeIntGenerator).toBe(true);
+                expect(testResource.getPhantomGenerator() instanceof NegativeIntGenerator).toBe(true);
             })
         )
     );
@@ -1048,11 +1048,11 @@ describe('Resource', () => {
                     testResource = createResource(TestResource, {
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
-                        phantomIdGeneratorClass: Uuid4Generator,
+                        phantomGeneratorClass: Uuid4Generator,
                         instanceClass: TestModel,
                     });
 
-                expect(testResource.getPhantomIdGenerator() instanceof Uuid4Generator).toBe(true);
+                expect(testResource.getPhantomGenerator() instanceof Uuid4Generator).toBe(true);
             })
         )
     );

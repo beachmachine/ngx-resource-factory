@@ -9,6 +9,8 @@ import {ResourceConfiguration} from "../resource/resource-configuration";
 import {ResourceConfigurationOptions} from "../resource/resource-configuration-options";
 import {ResourceActionHttpMethod} from "../resource/resource-action-http-method";
 import {ResourceMemoryCache} from "./resource-memory-cache";
+import {ResourceActionMethod} from "../resource/resource-action-method";
+import {ResourceAction} from "../resource/resource-action";
 
 
 /**
@@ -355,6 +357,516 @@ describe('ResourceMemoryCache', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
                 });
+            })
+        )
+    );
+
+    it('Does prepopulate data with `urlAttr` set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(testResource.get({pk: 1}).title).toBe('a');
+                        expect(testResource.get({pk: 2}).title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does prepopulate data with `urlAttr` set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        expect(testResource.get({pk: 1}).title).toBe('a');
+                        expect(testResource.get({pk: 2}).title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does not prepopulate data with missing `urlAttr` set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 1, title: 'a'});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 2, title: 'b'});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does not prepopulate data with missing `urlAttr` set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 1, title: 'a'});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 2, title: 'b'});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does not prepopulate data with `urlAttr` not set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 1, title: 'a'});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 2, title: 'b'});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does not prepopulate data with `urlAttr` not set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 1, title: 'a'});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({id: 2, title: 'b'});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+            })
+        )
+    );
+
+    it('Does prepopulate data with `urlAttr` and `dataAttr` set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(testResource.get({pk: 1}).title).toBe('a');
+                        expect(testResource.get({pk: 2}).title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does prepopulate data with `urlAttr` and `dataAttr` set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        expect(testResource.get({pk: 1}).title).toBe('a');
+                        expect(testResource.get({pk: 2}).title).toBe('b');
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not prepopulate data with missing `urlAttr` and `dataAttr` set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 1, title: 'a'}});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 2, title: 'b'}});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not prepopulate data with missing `urlAttr` and `dataAttr` set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        urlAttr: 'url',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 1, title: 'a'}});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 2, title: 'b'}});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush({data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not prepopulate data with `urlAttr` not set and `dataAttr` set on cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 1, title: 'a'}});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 2, title: 'b'}});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not prepopulate data with `urlAttr` not set and `dataAttr` set on non-cacheable actions',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: true,
+                    })
+                    test: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        useDataAttrForObject: true,
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.test().$promise
+                    .then(() => {
+                        testResource.get({pk: 1}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('a');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/1/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 1, title: 'a'}});
+
+                        testResource.get({pk: 2}).$promise
+                            .then((result) => {
+                                expect(result.title).toBe('b');
+                            });
+
+                        backend.expectOne({
+                            url: 'http://test/res/2/',
+                            method: ResourceActionHttpMethod.GET,
+                        }).flush({data: {id: 2, title: 'b'}});
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
             })
         )
     );

@@ -124,6 +124,15 @@ export class ResourceMemoryCache implements ResourceCache {
         this.data = new Map<string, ResourceCacheItemPromisable>();
     };
 
+    populate (urlAttr: string, items: ResourceCacheItem[]) {
+        for (let item of items) {
+            // Only populate the cache with the item if the item has a `urlAttr` set
+            if (item && item[urlAttr]) {
+
+            }
+        }
+    }
+
     /**
      * Get a cache key for the request. Returns `null` if the request is not
      * cacheable.
