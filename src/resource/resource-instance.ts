@@ -1,7 +1,4 @@
-import {HttpRequest, HttpResponse} from "@angular/common/http";
-import {Observable} from "rxjs/Observable";
-
-import {ResourceBase} from "./resource";
+import {ResourceModel} from "./resource-model";
 import {clean, clone} from "../utils/resource-utils";
 
 
@@ -14,59 +11,6 @@ export class ResourceInstance {
     constructor(data?: object) {
         data = data || {};
         Object.assign(this, data);
-    }
-
-    /**
-     * Indicates if the resource result is resolved and holding
-     * data the server sent.
-     * @returns {boolean}
-     */
-    get $resolved(): boolean {
-        return true;
-    }
-
-    /**
-     * Contains an `Observable` for the asynchronous result.
-     * @returns {Observable<any>}
-     */
-    get $observable(): Observable<any> {
-        return Observable.of(this);
-    }
-
-    /**
-     * Contains an `Promise` for the asynchronous result.
-     * @returns {Promise<any>}
-     */
-    get $promise(): Promise<any> {
-        return this.$observable.toPromise();
-    }
-
-    /**
-     * Reference to the `Resource` instance that created the
-     * model object. Gives `null` if resource instance is not bound
-     * to an resource.
-     * @returns {ResourceBase}
-     */
-    get $resource(): ResourceBase {
-        return null;
-    }
-
-    /**
-     * Reference to the `HttpRequest` instance. Gives `null` if
-     * resource instance does not come from a HTTP source.
-     * @returns {HttpRequest<any>}
-     */
-    get $request(): HttpRequest<any> {
-        return null;
-    }
-
-    /**
-     * Reference to the `HttpResponse` instance. Gives `null` if
-     * resource instance does not come from a HTTP source.
-     * @returns {HttpResponse<any>}
-     */
-    get $response(): HttpResponse<any> {
-        return null;
     }
 
     /**
@@ -94,7 +38,8 @@ export class ResourceInstance {
      */
     public isPhantom(): boolean {
         let
-            resource = this.$resource,
+            self = <ResourceModel<any>>this,
+            resource = self.$resource,
             phantomGenerator = resource ? resource.getPhantomGenerator() : null,
             pkAttr = resource ? resource.getOptions().pkAttr : null;
 

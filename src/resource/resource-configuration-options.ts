@@ -76,7 +76,7 @@ export interface ResourceConfigurationOptions {
     /**
      * Attribute name where to find the total amount of items on the query call (resource list calls).
      */
-    totalAttr?: string; // TODO
+    totalAttr?: string;
 
     /**
      * Use the `dataAttr` for list calls (e.g. `query`).

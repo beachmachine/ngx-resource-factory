@@ -12,6 +12,7 @@ import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
 import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
 import {Uuid4Generator} from "./phantom-generator/uuid4-generator";
+import {ResourceModel} from "./resource-model";
 
 
 /**
@@ -939,11 +940,10 @@ describe('Resource', () => {
                         pkAttr: 'id',
                         instanceClass: TestModel,
                     }),
-                    testInstance = new TestModel();
+                    testInstance = new TestModel(),
+                    testBoundInstance = testResource.bind(testInstance);
 
-                testResource.bind(testInstance);
-
-                expect(testInstance.$resource).toBe(testResource);
+                expect(testBoundInstance.$resource).toBe(testResource);
             })
         )
     );
@@ -958,9 +958,9 @@ describe('Resource', () => {
                 });
 
                 let
-                    testInstance = new TestModel();
+                    testInstance = <ResourceModel<TestModel>>new TestModel();
 
-                expect(testInstance.$resource).toBe(null);
+                expect(testInstance.$resource).toBe(undefined);
             })
         )
     );
@@ -1275,6 +1275,107 @@ describe('Resource', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
                 }).flush(dataBlob);
+            })
+        )
+    );
+
+    it('Does get total from `totalAttr` set on configuration',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.$total).toBe(100);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({total: 100, data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not get total from missing `totalAttr` set on configuration',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.$total).toBe(null);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not get total from `totalAttr` not set on configuration',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        dataAttr: 'data',
+                        useDataAttrForList: true,
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.$total).toBe(null);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({total: 100, data: [{id: 1, title: 'a'}, {id: 2, title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does not get total from `totalAttr` set when `dataAttr` not set on configuration',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    });
+
+                testResource.query().$promise
+                    .then((result) => {
+                        expect(result.$total).toBe(null);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush([{id: 1, title: 'a'}, {id: 2, title: 'b'}]);
             })
         )
     );

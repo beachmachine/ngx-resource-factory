@@ -394,7 +394,7 @@ export abstract class ResourceBase {
                                         cachedObj = <ResourceCacheItem>cache.put(request, cachedObj);
 
                                         // Process the response
-                                        obj = self.contributeResourceModelRequestResponse(obj, request, event);
+                                        obj = self.contributeResourceModelRequestResponseProperties(obj, request, event);
                                         obj = self.processResponse(obj, request, event, actionOptions);
 
                                         // Notify the observer
@@ -431,7 +431,7 @@ export abstract class ResourceBase {
                         resolved = true;
 
                         // Process the response
-                        obj = self.contributeResourceModelRequestResponse(obj, request, cacheObjResponse);
+                        obj = self.contributeResourceModelRequestResponseProperties(obj, request, cacheObjResponse);
                         obj = self.processResponse(obj, request, cacheObjResponse, actionOptions);
 
                         // Notify the observer
@@ -519,7 +519,7 @@ export abstract class ResourceBase {
         /*
          * Contribute the request as property to the object.
          */
-        obj = this.contributeResourceModelRequestResponse(obj, request);
+        obj = this.contributeResourceModelRequestResponseProperties(obj, request);
 
         return obj;
     }
@@ -536,11 +536,33 @@ export abstract class ResourceBase {
             contributedObject = <ResourceModelResult>obj;
 
         /*
-         * First we contribute the current resource to the resource instance.
+         * First we contribute the resource model properties to the resource instance.
          */
+        Object.defineProperty(contributedObject, '$resolved', {
+            writable: false,
+            value: true,
+        });
+        Object.defineProperty(contributedObject, '$total', {
+            writable: false,
+            value: null,
+        });
+        Object.defineProperty(contributedObject, '$observable', {
+            get: () => Observable.of(contributedObject),
+        });
+        Object.defineProperty(contributedObject, '$promise', {
+            get: () => obj.$observable.toPromise(),
+        });
         Object.defineProperty(contributedObject, '$resource', {
             writable: false,
             value: self,
+        });
+        Object.defineProperty(contributedObject, '$request', {
+            writable: false,
+            value: null,
+        });
+        Object.defineProperty(contributedObject, '$response', {
+            writable: false,
+            value: null,
         });
 
         /*
@@ -616,7 +638,7 @@ export abstract class ResourceBase {
      * @param {HttpResponse} response Response instance to contribute.
      * @returns {ResourceModelResult}
      */
-    protected contributeResourceModelRequestResponse(obj: any, request?: HttpRequest<ResourceInstance>, response?: HttpResponse<ResourceInstance>): ResourceModelResult {
+    protected contributeResourceModelRequestResponseProperties(obj: any, request?: HttpRequest<ResourceInstance>, response?: HttpResponse<ResourceInstance>): ResourceModelResult {
         let
             contributedObject = <ResourceModelResult>obj;
 
@@ -630,6 +652,24 @@ export abstract class ResourceBase {
         Object.defineProperty(contributedObject, '$response', {
             writable: false,
             value: response || null,
+        });
+
+        return contributedObject;
+    }
+
+    /**
+     * Contributes the list attributes (e.g. `totalAttr`) to the resource model object. Returns the given object with
+     * the type assurance of a `ResourceModelResult` object.
+     * @param obj Object to contribute resource model list properties to.
+     * @param {number} total The value of the `totalAttr`
+     */
+    protected contributeResourceModelListProperties(obj: any, total?: number): ResourceModelResult {
+        let
+            contributedObject = <ResourceModelResult>obj;
+
+        Object.defineProperty(contributedObject, '$total', {
+            writable: false,
+            value: total,
         });
 
         return contributedObject;
@@ -680,8 +720,11 @@ export abstract class ResourceBase {
             cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
             cacheTtl = this.getOptions().cacheTtl,
             body = response.body,
-            useDataAttr = actionOptions.dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
             dataAttr = actionOptions.dataAttr,
+            useDataAttr = dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
+            totalAttr = actionOptions.totalAttr,
+            useTotalAttr = useDataAttr && totalAttr && body && !isNaN(parseInt(body[totalAttr])),
+            total = useTotalAttr ? parseInt(body[totalAttr]) : null,
             urlAttr = actionOptions.urlAttr,
             responseList = (useDataAttr ? body[dataAttr] : body) || null;
 
@@ -725,6 +768,9 @@ export abstract class ResourceBase {
                 }
             }
         }
+
+        // Now we contribute the resource model list properties to the result array.
+        this.contributeResourceModelListProperties(result, total);
 
         return result;
     }
