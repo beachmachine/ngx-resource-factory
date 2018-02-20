@@ -6,6 +6,7 @@ import {Type} from "@angular/core/core";
 import {ResourceInstance} from "./resource-instance";
 import {HeaderBuilder} from "./header-builder/header-builder";
 import {UrlBuilder} from "./url-builder/url-builder";
+import {ResourceHeaderDefault} from "./resource-header-default";
 
 
 /**
@@ -57,6 +58,11 @@ export interface ResourceConfigurationOptions {
      * Default values for url parameters.
      */
     paramDefaults?: ResourceParamDefault[];
+
+    /**
+     * Default values for http headers.
+     */
+    headerDefaults?: ResourceHeaderDefault[];
 
     /**
      * Attribute name where to find the ID of objects.

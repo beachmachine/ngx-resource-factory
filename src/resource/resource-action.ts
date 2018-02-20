@@ -36,6 +36,7 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                     urlBuilderClass: resourceOptions.urlBuilderClass,
                     instanceClass: resourceOptions.instanceClass,
                     paramDefaults: resourceOptions.paramDefaults,
+                    headerDefaults: resourceOptions.headerDefaults,
                     urlAttr: resourceOptions.urlAttr,
                     totalAttr: resourceOptions.totalAttr,
                     dataAttr: (actionOptions.isList && resourceOptions.useDataAttrForList) || (!actionOptions.isList && resourceOptions.useDataAttrForObject) ?

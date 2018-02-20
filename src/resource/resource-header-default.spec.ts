@@ -65,7 +65,51 @@ describe('ResourceHeaderDefault', () => {
         })
     );
 
-    it('Does set custom default headers from strings',
+    it('Does set custom default headers from strings configured on resource',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        headerDefaults: [
+                            new ResourceHeaderDefault('x-custom-header', '1234'),
+                        ],
+                    });
+
+                testResource.get();
+
+                backend.expectOne(req => {
+                    return req.headers.get('x-custom-header') === '1234';
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does set custom default headers from functions configured on resource',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        headerDefaults: [
+                            new ResourceHeaderDefault('x-custom-header', () => '1234'),
+                        ],
+                    });
+
+                testResource.get();
+
+                backend.expectOne(req => {
+                    return req.headers.get('x-custom-header') === '1234';
+                }).flush({id: 1});
+            })
+        )
+    );
+
+    it('Does set custom default headers from strings configured on action',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
@@ -95,7 +139,7 @@ describe('ResourceHeaderDefault', () => {
         )
     );
 
-    it('Does set custom default headers from functions',
+    it('Does set custom default headers from functions configured on action',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
