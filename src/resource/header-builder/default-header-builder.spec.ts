@@ -4,6 +4,7 @@ import {HttpClientTestingModule, HttpTestingController} from "@angular/common/ht
 
 import {DefaultHeaderBuilder} from "./default-header-builder";
 import {ResourceHeaderDefault} from "../resource-header-default";
+import {NgxResourceFactoryModule} from "../../module";
 
 
 describe('DefaultHeaderBuilder', () => {
@@ -13,6 +14,7 @@ describe('DefaultHeaderBuilder', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });

@@ -1,4 +1,4 @@
-import {Injectable, Type} from "@angular/core";
+import {Type} from "@angular/core";
 import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from "@angular/common/http";
 
 import {Observable} from "rxjs/Observable";
@@ -20,6 +20,7 @@ import {ResourceCache} from "../cache/resource-cache";
 import {ResourceNoopCache} from "../cache/resource-noop-cache";
 import {PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker} from "../cache/resource-cache-item";
 import {clean, isPromiseLike} from "../utils/resource-utils";
+import {ResourceRegistry} from "./resource-registry";
 
 
 /**
@@ -43,7 +44,6 @@ export type ResourceModelResult = ResourceModelObject & ResourceModelList;
 /**
  * Base class for resources without any resource actions defined.
  */
-@Injectable()
 export abstract class ResourceBase {
     /**
      * Map of action methods. Populated by the `@ResourceAction` decorator. Used to create the
@@ -64,7 +64,10 @@ export abstract class ResourceBase {
      */
     private cache: ResourceCache;
 
-    constructor(protected http: HttpClient) {}
+    constructor(protected registry: ResourceRegistry, protected http: HttpClient) {
+        // Register the resource on the registry
+        this.registry.register(this);
+    }
 
     /**
      * Binds the given resource instance to the resource.
@@ -382,7 +385,10 @@ export abstract class ResourceBase {
                                          * cached data on the cache instance.
                                          */
                                         if (actionOptions.invalidateCache) {
-                                            cache.invalidate();
+                                            // Invalidate cache of all dependent caches (including self)
+                                            for (let resource of self.registry.getDependentResources(self)) {
+                                                resource.getCache().invalidate();
+                                            }
                                         }
 
                                         /*
@@ -814,7 +820,6 @@ export abstract class ResourceBase {
  * of resource actions predefined. You may want to override these in order to customize their behaviour. If you do
  * not want any predefined actions, consider inheriting from `ResourceBase` instead.
  */
-@Injectable()
 export abstract class Resource<T extends ResourceInstance> extends ResourceBase {
 
     /**

@@ -11,6 +11,8 @@ import {ResourceActionHttpMethod} from "../resource/resource-action-http-method"
 import {ResourceMemoryCache} from "./resource-memory-cache";
 import {ResourceActionMethod} from "../resource/resource-action-method";
 import {ResourceAction} from "../resource/resource-action";
+import {ResourceRegistry} from "../resource/resource-registry";
+import {NgxResourceFactoryModule} from "../module";
 
 
 /**
@@ -42,11 +44,10 @@ describe('ResourceMemoryCache', () => {
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
         let
+            registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
-        return Injectable()(
-            new (ResourceConfiguration(resourceConfiguration)(cls))(httpClient)
-        );
+        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
     }
 
     beforeEach(() => {
@@ -55,6 +56,7 @@ describe('ResourceMemoryCache', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });
@@ -70,6 +72,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -90,6 +93,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -125,6 +129,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -153,6 +158,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -184,6 +190,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -215,6 +222,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -246,6 +254,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -301,6 +310,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -366,6 +376,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -400,6 +411,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -426,6 +438,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -477,6 +490,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -520,6 +534,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -570,6 +585,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -612,6 +628,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -649,6 +666,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -678,6 +696,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -732,6 +751,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         urlAttr: 'url',
@@ -778,6 +798,7 @@ describe('ResourceMemoryCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         dataAttr: 'data',
@@ -831,6 +852,7 @@ describe('ResourceMemoryCache', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         dataAttr: 'data',

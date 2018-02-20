@@ -4,6 +4,7 @@ import {HttpClientTestingModule, HttpTestingController} from "@angular/common/ht
 
 import {DefaultUrlBuilder} from "./default-url-builder";
 import {ResourceParamDefaultFromPayload} from "../resource-param-default";
+import {NgxResourceFactoryModule} from "../../module";
 
 
 describe('DefaultUrlBuilder', () => {
@@ -13,6 +14,7 @@ describe('DefaultUrlBuilder', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });

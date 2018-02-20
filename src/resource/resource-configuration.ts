@@ -30,6 +30,13 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
 
 
 /**
+ * Exception that is thrown when a `ResourceConfiguration` is missing configuration options or got wrong
+ * configuration options.
+ */
+export class ResourceConfigurationError extends Error {}
+
+
+/**
  * Decorator to configure a resource class.
  * @param {ResourceConfigurationOptions} resourceOptions Resource configuration options.
  * @constructor
@@ -45,16 +52,36 @@ export function ResourceConfiguration(resourceOptions?: ResourceConfigurationOpt
             options: ResourceConfigurationOptions = Object.assign({}, DEFAULT_RESOURCE_CONFIGURATION_OPTIONS, resourceOptions);
 
         /*
-         * Compute dynamic configuration
+         * Check if configurations are correct and throw error otherwise.
+         */
+        if (!options.url) {
+            throw new ResourceConfigurationError(
+                "The `url` option is missing on the @ResourceConfiguration decorator."
+            );
+        }
+        if (!options.name) {
+            throw new ResourceConfigurationError(
+                "The `name` option is missing on the @ResourceConfiguration decorator. You might want " +
+                "to set it to the class name of the `Resource` class."
+            );
+        }
+
+        /*
+         * Compute dynamic configuration.
          */
         options.paramDefaults.push(
             new ResourceParamDefaultFromPayload('pk', options.pkAttr)
         );
 
-        target.prototype.getOptions = function () {
-            return options;
-        };
+        /*
+         * Make the options available on the resource.
+         */
+        return class extends target {
 
-        return target;
+            getOptions(): ResourceConfigurationOptions {
+                return options;
+            }
+
+        }
     }
 }

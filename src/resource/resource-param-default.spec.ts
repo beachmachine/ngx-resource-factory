@@ -11,6 +11,8 @@ import {ResourceActionHttpMethod} from "./resource-action-http-method";
 import {ResourceAction} from "./resource-action";
 import {ResourceActionMethod} from "./resource-action-method";
 import {ResourceParamDefault} from "./resource-param-default";
+import {ResourceRegistry} from "./resource-registry";
+import {NgxResourceFactoryModule} from "../module";
 
 
 /**
@@ -42,11 +44,10 @@ describe('ResourceParamDefault', () => {
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
         let
+            registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
-        return Injectable()(
-            new (ResourceConfiguration(resourceConfiguration)(cls))(httpClient)
-        );
+        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
     }
 
     beforeEach(() => {
@@ -55,6 +56,7 @@ describe('ResourceParamDefault', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });
@@ -81,6 +83,7 @@ describe('ResourceParamDefault', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:p/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -112,6 +115,7 @@ describe('ResourceParamDefault', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:p/',
                         pkAttr: 'id',
                         instanceClass: TestModel,

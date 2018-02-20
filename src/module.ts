@@ -1,6 +1,9 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {HttpClientModule} from "@angular/common/http";
 
+import {ResourceRegistry} from "./resource/resource-registry";
+
+
 /*
  * Angular module declaration
  */
@@ -17,7 +20,9 @@ export class NgxResourceFactoryModule {
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: NgxResourceFactoryModule,
-            providers: []
+            providers: [
+                ResourceRegistry,
+            ]
         };
     }
 

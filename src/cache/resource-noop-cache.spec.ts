@@ -9,6 +9,8 @@ import {ResourceConfiguration} from "../resource/resource-configuration";
 import {ResourceConfigurationOptions} from "../resource/resource-configuration-options";
 import {ResourceActionHttpMethod} from "../resource/resource-action-http-method";
 import {ResourceNoopCache} from "./resource-noop-cache";
+import {ResourceRegistry} from "../resource/resource-registry";
+import {NgxResourceFactoryModule} from "../module";
 
 
 /**
@@ -40,11 +42,10 @@ describe('ResourceNoopCache', () => {
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
         let
+            registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
-        return Injectable()(
-            new (ResourceConfiguration(resourceConfiguration)(cls))(httpClient)
-        );
+        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
     }
 
     beforeEach(() => {
@@ -53,6 +54,7 @@ describe('ResourceNoopCache', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });
@@ -68,6 +70,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -88,6 +91,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -123,6 +127,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -151,6 +156,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -182,6 +188,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -241,6 +248,7 @@ describe('ResourceNoopCache', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,

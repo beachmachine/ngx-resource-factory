@@ -8,6 +8,8 @@ import {ResourceInstance} from "./resource-instance";
 import {ResourceConfiguration} from "./resource-configuration";
 import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
+import {ResourceRegistry} from "./resource-registry";
+import {NgxResourceFactoryModule} from "../module";
 
 
 /**
@@ -39,11 +41,10 @@ describe('ResourceAction', () => {
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
         let
+            registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
-        return Injectable()(
-            new (ResourceConfiguration(resourceConfiguration)(cls))(httpClient)
-        );
+        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
     }
 
     beforeEach(() => {
@@ -52,6 +53,7 @@ describe('ResourceAction', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });
@@ -71,6 +73,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -105,6 +108,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -139,6 +143,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -169,6 +174,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -199,6 +205,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -229,6 +236,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -263,6 +271,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -293,6 +302,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -323,6 +333,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -357,6 +368,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -391,6 +403,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -425,6 +438,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -459,6 +473,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -493,6 +508,7 @@ describe('ResourceAction', () => {
                         error: () => {}
                     },
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,

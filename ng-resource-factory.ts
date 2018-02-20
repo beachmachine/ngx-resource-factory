@@ -7,6 +7,7 @@ export * from "./src/module";
  * Export cache
  */
 export * from "./src/cache/resource-cache";
+export * from "./src/cache/resource-cache-item";
 export * from "./src/cache/resource-memory-cache";
 export * from "./src/cache/resource-noop-cache";
 
@@ -24,6 +25,7 @@ export * from "./src/resource/resource-header-default";
 export * from "./src/resource/resource-instance";
 export * from "./src/resource/resource-model";
 export * from "./src/resource/resource-param-default";
+export * from "./src/resource/resource-registry";
 
 
 /**

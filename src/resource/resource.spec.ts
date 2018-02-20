@@ -13,6 +13,8 @@ import {ResourceActionMethod} from "./resource-action-method";
 import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
 import {Uuid4Generator} from "./phantom-generator/uuid4-generator";
 import {ResourceModel} from "./resource-model";
+import {ResourceRegistry} from "./resource-registry";
+import {NgxResourceFactoryModule} from "../module";
 
 
 /**
@@ -44,11 +46,10 @@ describe('Resource', () => {
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
         let
+            registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
-        return Injectable()(
-            new (ResourceConfiguration(resourceConfiguration)(cls))(httpClient)
-        );
+        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
     }
 
     beforeEach(() => {
@@ -57,6 +58,7 @@ describe('Resource', () => {
             imports: [
                 HttpClientModule,
                 HttpClientTestingModule,
+                NgxResourceFactoryModule.forRoot(),
             ],
         });
     });
@@ -71,6 +73,7 @@ describe('Resource', () => {
         inject([], () => {
             let
                 testResource = createResource(TestResource, {
+                    name: 'TestResource',
                     url: 'http://test/:pk/',
                     pkAttr: 'id',
                     instanceClass: TestModel,
@@ -88,6 +91,7 @@ describe('Resource', () => {
         inject([], () => {
             let
                 testResource = createResource(TestResource, {
+                    name: 'TestResource',
                     url: 'http://test/:pk/',
                     pkAttr: 'id',
                     instanceClass: TestModel,
@@ -107,6 +111,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -127,6 +132,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -148,6 +154,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -168,6 +175,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -189,6 +197,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -213,6 +222,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -236,6 +246,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -259,6 +270,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -285,6 +297,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -309,6 +322,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -350,6 +364,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -388,6 +403,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -434,6 +450,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -477,6 +494,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -520,6 +538,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -565,6 +584,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -611,6 +631,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -654,6 +675,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -699,6 +721,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -743,6 +766,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestSpecificModel,
@@ -766,6 +790,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -793,6 +818,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -818,6 +844,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -845,6 +872,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -870,6 +898,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -896,6 +925,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -920,6 +950,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -936,6 +967,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -952,6 +984,7 @@ describe('Resource', () => {
         async(
             inject([HttpTestingController], () => {
                 createResource(TestResource, {
+                    name: 'TestResource',
                     url: 'http://test/res/:pk/',
                     pkAttr: 'id',
                     instanceClass: TestModel,
@@ -970,11 +1003,13 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource1 = createResource(TestResource, {
+                        name: 'TestResource1',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
                     }),
                     testResource2 = createResource(TestResource, {
+                        name: 'TestResource2',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -995,6 +1030,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1011,6 +1047,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1031,6 +1068,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1046,6 +1084,7 @@ describe('Resource', () => {
             inject([HttpTestingController], () => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         phantomGeneratorClass: Uuid4Generator,
@@ -1062,6 +1101,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1082,6 +1122,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1102,6 +1143,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1126,6 +1168,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1150,6 +1193,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1182,6 +1226,7 @@ describe('Resource', () => {
 
                 let
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1216,6 +1261,7 @@ describe('Resource', () => {
                     intArray = new Uint8Array([1, 2, 3, 4]),
                     intArrayBuffer = intArray.buffer,
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1254,6 +1300,7 @@ describe('Resource', () => {
                 let
                     dataBlob = new Blob(['a', 'b', 'c', 'd'], {type : 'application/x-custom'}),
                     testResource = createResource(TestSpecificResource, {
+                        name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
@@ -1284,6 +1331,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         dataAttr: 'data',
@@ -1310,6 +1358,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         dataAttr: 'data',
@@ -1336,6 +1385,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         dataAttr: 'data',
@@ -1361,6 +1411,7 @@ describe('Resource', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
+                        name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         totalAttr: 'total',
