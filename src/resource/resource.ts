@@ -1,4 +1,4 @@
-import {Type} from "@angular/core";
+import {Type, Injectable} from "@angular/core";
 import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from "@angular/common/http";
 
 import {Observable} from "rxjs/Observable";
@@ -46,6 +46,7 @@ export type ResourceModelResult = ResourceModelObject & ResourceModelList;
 /**
  * Base class for resources without any resource actions defined.
  */
+@Injectable()
 export abstract class ResourceBase {
     /**
      * Map of action methods. Populated by the `@ResourceAction` decorator. Used to create the
@@ -838,6 +839,7 @@ export abstract class ResourceBase {
  * of resource actions predefined. You may want to override these in order to customize their behaviour. If you do
  * not want any predefined actions, consider inheriting from `ResourceBase` instead.
  */
+@Injectable()
 export abstract class Resource<T extends ResourceInstance> extends ResourceBase {
 
     /**
