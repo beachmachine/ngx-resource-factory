@@ -19,8 +19,8 @@ export class DefaultHeaderBuilder implements HeaderBuilder {
         if (options.headerDefaults) {
             for (let headerDefault of options.headerDefaults) {
                 headers = headers.set(
-                    headerDefault.key,
-                    headerDefault.getValue(query, payload, options),
+                    String(headerDefault.key),
+                    String(headerDefault.getValue(query, payload, options)),
                 );
             }
         }

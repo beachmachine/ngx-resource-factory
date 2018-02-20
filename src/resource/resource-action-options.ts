@@ -32,7 +32,7 @@ export interface ResourceActionOptions {
      * Invalidates the cache if the action was executed successfully. Mind that the action
      * only invalidates the cache if `useCache` is set to `true`.
      */
-    invalidateCache?: boolean; // TODO
+    invalidateCache?: boolean;
 
     /**
      * Report progress on requests.
