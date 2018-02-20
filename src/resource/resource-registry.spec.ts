@@ -66,9 +66,13 @@ describe('ResourceRegistry', () => {
     it('Does collect tree-like dependencies',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestResource1 extends TestResource {}
+                class TestResourceDep1 extends TestResource {}
+                class TestResourceDep2 extends TestResource {}
+
                 let
                     registry = TestBed.get(ResourceRegistry, null),
-                    testResource1 = createResource(TestResource, {
+                    testResource1 = createResource(TestResource1, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
@@ -77,13 +81,13 @@ describe('ResourceRegistry', () => {
                             'TestResourceDep1'
                         ]
                     }),
-                    testResource2 = createResource(TestResource, {
+                    testResource2 = createResource(TestResourceDep1, {
                         name: 'TestResourceDep1',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
                         instanceClass: TestModel,
                     }),
-                    testResource3 = createResource(TestResource, {
+                    testResource3 = createResource(TestResourceDep2, {
                         name: 'TestResourceDep2',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
@@ -101,9 +105,13 @@ describe('ResourceRegistry', () => {
     it('Does collect circular dependencies',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestResource1 extends TestResource {}
+                class TestResourceDep1 extends TestResource {}
+                class TestResourceDep2 extends TestResource {}
+
                 let
                     registry = TestBed.get(ResourceRegistry, null),
-                    testResource1 = createResource(TestResource, {
+                    testResource1 = createResource(TestResource1, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
@@ -112,7 +120,7 @@ describe('ResourceRegistry', () => {
                             'TestResourceDep1'
                         ],
                     }),
-                    testResource2 = createResource(TestResource, {
+                    testResource2 = createResource(TestResourceDep1, {
                         name: 'TestResourceDep1',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',
@@ -121,7 +129,7 @@ describe('ResourceRegistry', () => {
                             'TestResourceDep2'
                         ],
                     }),
-                    testResource3 = createResource(TestResource, {
+                    testResource3 = createResource(TestResourceDep2, {
                         name: 'TestResourceDep2',
                         url: 'http://test/res/:pk/',
                         pkAttr: 'id',

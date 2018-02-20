@@ -52,19 +52,19 @@ export abstract class ResourceBase {
      * resource action methods on `ResourceModel` objects.
      * @type {Map<string, Function>}
      */
-    private actionMethods: Map<string, Function>;
+    protected actionMethods: Map<string, Function>;
 
     /**
      * Singleton instance of the configured phantom ID generator class.
      * @type {PhantomGenerator}
      */
-    private phantomGenerator: PhantomGenerator;
+    protected phantomGenerator: PhantomGenerator;
 
     /**
      * Singleton instance of the configured cache class.
      * @type {ResourceCache}
      */
-    private cache: ResourceCache;
+    protected cache: ResourceCache;
 
     constructor(protected registry: ResourceRegistry, protected http: HttpClient) {
         // Register the resource on the registry

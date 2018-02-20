@@ -73,15 +73,10 @@ export function ResourceConfiguration(resourceOptions?: ResourceConfigurationOpt
             new ResourceParamDefaultFromPayload('pk', options.pkAttr)
         );
 
-        /*
-         * Make the options available on the resource.
-         */
-        return class extends target {
+        target.prototype.getOptions = function () {
+            return options;
+        };
 
-            getOptions(): ResourceConfigurationOptions {
-                return options;
-            }
-
-        }
+        return target;
     }
 }
