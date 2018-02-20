@@ -37,7 +37,7 @@ export interface ResourceActionOptions {
     /**
      * Report progress on requests.
      */
-    reportProgress?: boolean; // TODO
+    reportProgress?: boolean;
 
     /**
      * Strip trailing slashes from request URLs.

@@ -31,6 +31,12 @@ export type ResourceModel<T> = T & ResourceInstance & ResourceModelMethods<T> & 
     $total: number;
 
     /**
+     * Contains an `Observable` for subscribing to `HttpEvent` events.
+     * @returns {Observable<any>}
+     */
+    $http: Observable<any>;
+
+    /**
      * Contains an `Observable` for the asynchronous result.
      * @returns {Observable<any>}
      */

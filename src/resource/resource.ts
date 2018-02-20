@@ -5,6 +5,7 @@ import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
 
 import "rxjs/add/observable/of";
+import "rxjs/add/observable/from";
 import "rxjs/add/operator/shareReplay";
 import "rxjs/add/operator/toPromise";
 
@@ -21,6 +22,7 @@ import {ResourceNoopCache} from "../cache/resource-noop-cache";
 import {PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker} from "../cache/resource-cache-item";
 import {clean, isPromiseLike} from "../utils/resource-utils";
 import {ResourceRegistry} from "./resource-registry";
+import {Subject} from "rxjs/Subject";
 
 
 /**
@@ -327,6 +329,16 @@ export abstract class ResourceBase {
             httpObservable = this.http.request(request),
 
             /*
+             * The subject used to publish http events.
+             */
+            httpEventSubject = new Subject<HttpEvent<ResourceInstance>>(),
+
+            /*
+             * The observable created from the http event subject.
+             */
+            httpEventObservable = Observable.from(httpEventSubject),
+
+            /*
              * Hot observable that wraps the `HTTPClient` observable.
              */
             observable = Observable.create((observer: Observer<ResourceModelResult>) => {
@@ -362,18 +374,20 @@ export abstract class ResourceBase {
                         httpObservable.subscribe(
                             function next(event: HttpEvent<ResourceInstance>) {
                                 switch (event.type) {
+                                    /*
+                                     * On non-response events we process publish the event on the http event subject.
+                                     */
+                                    case HttpEventType.User:
                                     case HttpEventType.Sent:
-                                        // TODO
-                                        break;
                                     case HttpEventType.UploadProgress:
-                                        // TODO
-                                        break;
                                     case HttpEventType.ResponseHeader:
-                                        // TODO
-                                        break;
                                     case HttpEventType.DownloadProgress:
-                                        // TODO
+                                        httpEventSubject.next(event);
                                         break;
+
+                                    /*
+                                     * On response events we process the response data.
+                                     */
                                     case HttpEventType.Response:
                                         let
                                             cachedObj = new ResourceCacheItem(event, self, cacheTtl);
@@ -410,18 +424,18 @@ export abstract class ResourceBase {
                                         cacheResolve(cachedObj);
 
                                         break;
-                                    case HttpEventType.User:
-                                        // TODO
-                                        break;
                                 }
                             },
                             function error(errorResponse: HttpErrorResponse) {
                                 cache.pop(request);
+
+                                httpEventSubject.error(errorResponse);
                                 observer.error(errorResponse);
 
                                 cacheReject(errorResponse);
                             },
                             function complete() {
+                                httpEventSubject.complete();
                                 observer.complete();
                             }
                         );
@@ -505,6 +519,10 @@ export abstract class ResourceBase {
         Object.defineProperty(obj, '$observable', {
             writable: false,
             value: observable,
+        });
+        Object.defineProperty(obj, '$http', {
+            writable: false,
+            value: httpEventObservable,
         });
         Object.defineProperty(obj, '$promise', {
             get: function () {
