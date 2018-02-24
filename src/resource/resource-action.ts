@@ -1,6 +1,5 @@
 import {ResourceActionOptions} from "./resource-action-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {ResourceBase} from "./resource";
 
 
 export const DEFAULT_RESOURCE_ACTION_OPTIONS: ResourceActionOptions = {
@@ -20,7 +19,7 @@ export const DEFAULT_RESOURCE_ACTION_OPTIONS: ResourceActionOptions = {
  */
 export function ResourceAction(actionOptions?: ResourceActionOptions) {
 
-    return function decorator(target: ResourceBase, key: string) {
+    return function decorator(target: any, key: string) {
         target[key] = function (...args: any[]) {
             let
                 resourceOptions = this.getOptions(),

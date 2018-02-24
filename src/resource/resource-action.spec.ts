@@ -3,13 +3,16 @@ import {async, inject, TestBed} from "@angular/core/testing";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
 
-import {Resource} from "./resource";
+import {Resource, ResourceBase} from "./resource";
 import {ResourceInstance} from "./resource-instance";
 import {ResourceConfiguration} from "./resource-configuration";
 import {ResourceConfigurationOptions} from "./resource-configuration-options";
 import {ResourceActionHttpMethod} from "./resource-action-http-method";
 import {ResourceRegistry} from "./resource-registry";
 import {NgxResourceFactoryModule} from "../module";
+import {ResourceActionMethod} from "./resource-action-method";
+import {ResourceAction} from "./resource-action";
+import {ResourceModel} from "./resource-model";
 
 
 /**
@@ -32,6 +35,20 @@ class TestResource extends Resource<TestModel> {
 
 describe('ResourceAction', () => {
     /**
+     * Creates an instance of the given resource class.
+     *
+     * @param {Type<T extends TestResource>} cls Resource class
+     * @returns {T}
+     */
+    function instantiateResource<T extends ResourceBase>(cls: Type<T>): T {
+        let
+            registry = TestBed.get(ResourceRegistry, null),
+            httpClient = TestBed.get(HttpClient, null);
+
+        return new cls(registry, httpClient);
+    }
+
+    /**
      * Creates a resource service for the given resource class with
      * the given resource configuration.
      *
@@ -39,12 +56,8 @@ describe('ResourceAction', () => {
      * @param {ResourceConfigurationOptions} resourceConfiguration Resource configuration to use
      * @returns {T}
      */
-    function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
-        let
-            registry = TestBed.get(ResourceRegistry, null),
-            httpClient = TestBed.get(HttpClient, null);
-
-        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
+    function createResource<T extends ResourceBase>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
+        return instantiateResource((Injectable()(ResourceConfiguration(resourceConfiguration)(cls))));
     }
 
     beforeEach(() => {
@@ -62,6 +75,238 @@ describe('ResourceAction', () => {
         inject([HttpTestingController], (backend: HttpTestingController) => {
             backend.verify();
         })
+    );
+
+    it('Does have all configured action methods on resource',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action1: ResourceActionMethod<any, any, TestModel>;
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        paramDefaults: [],
+                        isList: false,
+                    })
+                    action2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    resource = instantiateResource(TestResource);
+
+                resource.action1();
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush("");
+
+                resource.action2();
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush("");
+            })
+        )
+    );
+
+    it('Does have all configured action methods on instance',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    create(payload?: object): ResourceModel<TestModel> {
+                        payload = payload || {};
+                        return <ResourceModel<TestModel>>this.makeResourceModel(payload);
+                    }
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action1: ResourceActionMethod<any, any, TestModel>;
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        paramDefaults: [],
+                        isList: false,
+                    })
+                    action2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    resource = instantiateResource(TestResource),
+                    instance = resource.create();
+
+                instance.$action1();
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush("");
+
+                instance.$action2();
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush("");
+            })
+        )
+    );
+
+    it('Does have all inherited configured action methods on resource',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action1: ResourceActionMethod<any, any, TestModel>;
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        paramDefaults: [],
+                        isList: false,
+                    })
+                    action2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'ChildTestResource',
+                    url: 'http://childtest/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class ChildTestResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.POST,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action3: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    resource = instantiateResource(ChildTestResource);
+
+                resource.action1();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush("");
+
+                resource.action2();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush("");
+
+                resource.action3();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.POST,
+                }).flush("");
+            })
+        )
+    );
+
+    it('Does have all inherited configured action methods on instance',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action1: ResourceActionMethod<any, any, TestModel>;
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        paramDefaults: [],
+                        isList: false,
+                    })
+                    action2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'ChildTestResource',
+                    url: 'http://childtest/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class ChildTestResource extends TestResource {
+                    create(payload?: object): ResourceModel<TestModel> {
+                        payload = payload || {};
+                        return <ResourceModel<TestModel>>this.makeResourceModel(payload);
+                    }
+
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.POST,
+                        paramDefaults: [],
+                        isList: true,
+                    })
+                    action3: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    resource = instantiateResource(ChildTestResource),
+                    instance = resource.create();
+
+                instance.$action1();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush("");
+
+                instance.$action2();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.PUT,
+                }).flush("");
+
+                instance.$action3();
+                backend.expectOne({
+                    url: 'http://childtest/res/',
+                    method: ResourceActionHttpMethod.POST,
+                }).flush("");
+            })
+        )
     );
 
     it('Does take `query`, `payload`, `successCb` and `errorCb` on resource',
