@@ -3,6 +3,7 @@ import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, Ht
 
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
+import {Subject} from "rxjs/Subject";
 
 import "rxjs/add/observable/of";
 import "rxjs/add/observable/from";
@@ -22,7 +23,6 @@ import {ResourceNoopCache} from "../cache/resource-noop-cache";
 import {PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker} from "../cache/resource-cache-item";
 import {clean, isPromiseLike} from "../utils/resource-utils";
 import {ResourceRegistry} from "./resource-registry";
-import {Subject} from "rxjs/Subject";
 
 
 /**
@@ -914,25 +914,27 @@ export class ResourceUnexpectedResponseError extends Error {}
  * is called.
  * @constructor
  */
-function NeedsOptions() {
+export function NeedsOptions() {
+    let
+        decorator = function (target: ResourceBase, key: string, descriptor: PropertyDescriptor) {
+            let
+                originalMethod = descriptor.value;
 
-    return function decorator(target: ResourceBase, key: string, descriptor: PropertyDescriptor) {
-        let
-            originalMethod = descriptor.value;
+            descriptor.value = function (...args: any[]) {
+                // First we need to check if the resource instance is set up correctly
+                if (this.getOptions() === null) {
+                    throw new ResourceNeedsOptionsError(
+                        "The resource is not setup correctly. Did you use the " +
+                        "@ResourceConfiguration decorator?"
+                    );
+                }
 
-        descriptor.value = function (...args: any[]) {
-            // First we need to check if the resource instance is set up correctly
-            if (this.getOptions() === null) {
-                throw new ResourceNeedsOptionsError(
-                    "The resource is not setup correctly. Did you use the " +
-                    "@ResourceConfiguration decorator?"
-                );
-            }
+                // Now we can call the original method
+                return originalMethod.apply(this, args);
+            };
 
-            // Now we can call the original method
-            return originalMethod.apply(this, args);
+            return descriptor;
         };
 
-        return descriptor;
-    }
+    return decorator;
 }

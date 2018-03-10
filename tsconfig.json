@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
-    "module": "es2015",
     "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "removeComments": false,
     "noImplicitAny": false,
-    "suppressImplicitAnyIndexErrors": true,
     "declaration": true,
-    "moduleResolution": "node",
+    "stripInternal": true,
     "noUnusedLocals": true,
     "types": [
       "node",
@@ -19,12 +21,13 @@
       "es7",
       "dom"
     ],
-    "outDir": "dist"
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*.ts"
   ],
   "exclude": [
+    "**/*.spec.ts",
     "node_modules"
   ],
   "angularCompilerOptions": {
