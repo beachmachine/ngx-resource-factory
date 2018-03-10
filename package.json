@@ -60,10 +60,12 @@
     "webpack": "^3.11.0",
     "zone.js": "^0.8.14"
   },
+  "peerDependencies": {
+    "@angular/common": "^5.0.0",
+    "@angular/core": "^5.0.0",
+    "@angular/http": "^5.0.0"
+  },
   "dependencies": {
-    "@angular/common": "^5.2.8",
-    "@angular/core": "^5.2.8",
-    "@angular/http": "^5.2.8",
     "lodash": "^4.17.5"
   }
 }
