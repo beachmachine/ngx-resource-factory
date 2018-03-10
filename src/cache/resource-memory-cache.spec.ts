@@ -371,7 +371,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does prepopulate data with `urlAttr` set on cacheable actions',
+    it('Does pre-populate data with `urlAttr` set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -398,7 +398,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does prepopulate data with `urlAttr` set on non-cacheable actions',
+    it('Does pre-populate data with `urlAttr` set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -433,7 +433,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with missing `urlAttr` set on cacheable actions',
+    it('Does not pre-populate data with missing `urlAttr` set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -477,7 +477,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with missing `urlAttr` set on non-cacheable actions',
+    it('Does not pre-populate data with missing `urlAttr` set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -529,7 +529,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with `urlAttr` not set on cacheable actions',
+    it('Does not pre-populate data with `urlAttr` not set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -572,7 +572,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with `urlAttr` not set on non-cacheable actions',
+    it('Does not pre-populate data with `urlAttr` not set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -623,7 +623,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does prepopulate data with `urlAttr` and `dataAttr` set on cacheable actions',
+    it('Does pre-populate data with `urlAttr` and `dataAttr` set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -653,7 +653,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does prepopulate data with `urlAttr` and `dataAttr` set on non-cacheable actions',
+    it('Does pre-populate data with `urlAttr` and `dataAttr` set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -691,7 +691,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with missing `urlAttr` and `dataAttr` set on cacheable actions',
+    it('Does not pre-populate data with missing `urlAttr` and `dataAttr` set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -738,7 +738,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with missing `urlAttr` and `dataAttr` set on non-cacheable actions',
+    it('Does not pre-populate data with missing `urlAttr` and `dataAttr` set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -793,7 +793,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with `urlAttr` not set and `dataAttr` set on cacheable actions',
+    it('Does not pre-populate data with `urlAttr` not set and `dataAttr` set on cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
@@ -839,7 +839,7 @@ describe('ResourceMemoryCache', () => {
         )
     );
 
-    it('Does not prepopulate data with `urlAttr` not set and `dataAttr` set on non-cacheable actions',
+    it('Does not pre-populate data with `urlAttr` not set and `dataAttr` set on non-cacheable actions',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
@@ -889,6 +889,206 @@ describe('ResourceMemoryCache', () => {
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.PUT,
                 }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+            })
+        )
+    );
+
+    it('Does handle errors immediate cacheable actions using observable',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                setTimeout(() => {
+                    backend.expectOne({
+                        url: 'http://test/res/',
+                        method: ResourceActionHttpMethod.GET,
+                    }).flush({}, {
+                        status: 500,
+                        statusText: 'Server error'
+                    });
+                }, 125);
+
+                setTimeout(() => {
+                    backend.expectOne({
+                        url: 'http://test/res/',
+                        method: ResourceActionHttpMethod.GET,
+                    }).flush({}, {
+                        status: 500,
+                        statusText: 'Server error'
+                    });
+                }, 250);
+            })
+        )
+    );
+
+    it('Does handle errors delayed cacheable actions using observable',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+            })
+        )
+    );
+
+    it('Does handle errors immediate cacheable actions using promise',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                setTimeout(() => {
+                    backend.expectOne({
+                        url: 'http://test/res/',
+                        method: ResourceActionHttpMethod.GET,
+                    }).flush({}, {
+                        status: 500,
+                        statusText: 'Server error'
+                    });
+                }, 125);
+
+                setTimeout(() => {
+                    backend.expectOne({
+                        url: 'http://test/res/',
+                        method: ResourceActionHttpMethod.GET,
+                    }).flush({}, {
+                        status: 500,
+                        statusText: 'Server error'
+                    });
+                }, 250);
+            })
+        )
+    );
+
+    it('Does handle errors delayed cacheable actions using promise',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceMemoryCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
             })
         )
     );

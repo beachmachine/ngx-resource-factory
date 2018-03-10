@@ -371,6 +371,11 @@ export abstract class ResourceBase {
                         // Put the cache promise on the cache.
                         cache.put(request, <Promise<ResourceCacheItem>>cachePromise);
 
+                        // Register a default error handler on cache promise, so we do not get a console error
+                        cachePromise.catch(() => {
+                            // Nothing to do here
+                        });
+
                         // Now we can execute the actual HTTP request/response cycle.
                         httpObservable.subscribe(
                             function next(event: HttpEvent<ResourceInstance>) {

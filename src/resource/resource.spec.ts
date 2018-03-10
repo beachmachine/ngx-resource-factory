@@ -292,6 +292,69 @@ describe('Resource', () => {
         )
     );
 
+    it('Does handle errors on observable',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    result = testResource.query();
+
+                result.$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+            })
+        )
+    );
+
+    it('Does handle errors on promise',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    result = testResource.query();
+
+                result.$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+            })
+        )
+    );
+
     it('Does instantiate as resource instance class on lists',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {

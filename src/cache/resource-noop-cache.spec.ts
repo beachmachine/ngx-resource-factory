@@ -308,4 +308,100 @@ describe('ResourceNoopCache', () => {
             })
         )
     );
+
+    it('Does handle errors multiple using observable',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceNoopCache,
+                    });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+
+                testResource.query().$observable.subscribe({
+                    next: () => {
+                        expect(false).toBe(true);
+                    },
+                    error: () => {
+                        expect(true).toBe(true);
+                    }
+                });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+            })
+        )
+    );
+
+    it('Does handle errors multiple using promise',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                        cacheClass: ResourceNoopCache,
+                    });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+
+                testResource.query().$promise
+                    .then(() => {
+                        expect(false).toBe(true);
+                    })
+                    .catch(() => {
+                        expect(true).toBe(true);
+                    });
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({}, {
+                    status: 500,
+                    statusText: 'Server error'
+                });
+            })
+        )
+    );
 });
