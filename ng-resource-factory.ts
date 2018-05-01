@@ -49,11 +49,6 @@ export * from "./src/resource/phantom-generator/phantom-generator";
 export * from "./src/resource/phantom-generator/negative-int-generator";
 export * from "./src/resource/phantom-generator/uuid4-generator";
 
-/**
- * Export store
- */
-export * from "./src/store/resource-store";
-export * from "./src/store/resource-store-relation";
 
 /**
  * Export utils

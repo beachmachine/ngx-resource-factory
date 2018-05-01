@@ -1,12 +1,18 @@
-import {ResourceActionOptions} from "./resource-action-options";
+import { ResourceActionOptions } from "./resource-action-options";
+
+
+/**
+ * Type that describes the value signature for a `ResourceHeaderDefault`
+ * instance.
+ */
+export type ResourceHeaderDefaultValue = ((query: Object, payload: Object, options: ResourceActionOptions) => string) | string;
+
 
 /**
  * Class that defines a http header default for building
  * requests on resources.
  */
 export class ResourceHeaderDefault {
-    protected _key: string = null;
-    protected _value: (query: Object, payload: Object, options: ResourceActionOptions) => string = null;
 
     /**
      * Gets the key of the http header.
@@ -21,24 +27,20 @@ export class ResourceHeaderDefault {
      * @returns {string}
      */
     getValue(query: Object, payload: Object, options: ResourceActionOptions): string {
-        return this._value(query, payload, options);
+        if (this._value instanceof Function) {
+            return this._value(query, payload, options);
+        }
+        else {
+            return this._value;
+        }
     }
 
     /**
-     * @param {string} key Key of the url parm.
-     * @param {(() => string) | string} value Value of the url param as string or as getter function.
+     * @param {string} _key Key of the url parm.
+     * @param {ResourceHeaderDefaultValue} _value Value of the url param as string or as getter function.
      */
-    constructor(key: string, value: ((query: Object, payload: Object, options: ResourceActionOptions) => string) | string) {
-        this._key = key;
-
-        if (value instanceof Function) {
-            this._value = value;
-        }
-        else {
-            this._value = function (query: Object, payload: Object, options: ResourceActionOptions) {
-                return value;
-            };
-        }
+    constructor(protected _key: string,
+                protected _value: ResourceHeaderDefaultValue) {
     }
 }
 

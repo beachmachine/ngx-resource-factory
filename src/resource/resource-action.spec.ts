@@ -1,18 +1,18 @@
-import {Injectable, Type} from "@angular/core";
-import {async, inject, TestBed} from "@angular/core/testing";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { Injectable, Type } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {Resource, ResourceBase} from "./resource";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceConfiguration} from "./resource-configuration";
-import {ResourceConfigurationOptions} from "./resource-configuration-options";
-import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {ResourceRegistry} from "./resource-registry";
-import {NgxResourceFactoryModule} from "../module";
-import {ResourceActionMethod} from "./resource-action-method";
-import {ResourceAction} from "./resource-action";
-import {ResourceModel} from "./resource-model";
+import { Resource, ResourceBase } from "./resource";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceConfiguration } from "./resource-configuration";
+import { ResourceConfigurationOptions } from "./resource-configuration-options";
+import { ResourceActionHttpMethod } from "./resource-action-http-method";
+import { ResourceRegistry } from "./resource-registry";
+import { NgxResourceFactoryModule } from "../module";
+import { ResourceActionMethod } from "./resource-action-method";
+import { ResourceAction } from "./resource-action";
+import { ResourceModel } from "./resource-model";
 
 
 /**
@@ -314,8 +314,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -349,8 +351,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -384,8 +388,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -415,8 +421,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -446,8 +454,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -477,8 +487,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -512,8 +524,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -543,8 +557,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -574,8 +590,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -609,8 +627,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -644,8 +664,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -679,8 +701,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -714,8 +738,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
@@ -749,8 +775,10 @@ describe('ResourceAction', () => {
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     cbs = {
-                        success: () => {},
-                        error: () => {}
+                        success: () => {
+                        },
+                        error: () => {
+                        }
                     },
                     testResource = createResource(TestResource, {
                         name: 'TestResource',

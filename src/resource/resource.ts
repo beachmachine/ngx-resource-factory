@@ -1,28 +1,37 @@
-import {Type, Injectable} from "@angular/core";
-import {HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse} from "@angular/common/http";
+import { Type, Injectable } from "@angular/core";
+import {
+    HttpClient,
+    HttpErrorResponse,
+    HttpEvent,
+    HttpEventType,
+    HttpRequest,
+    HttpResponse
+} from "@angular/common/http";
 
-import {Observable} from "rxjs/Observable";
-import {Observer} from "rxjs/Observer";
-import {Subject} from "rxjs/Subject";
+import { Observable } from "rxjs/Observable";
+import { Observer } from "rxjs/Observer";
+import { Subject } from "rxjs/Subject";
+import { of as observableOf } from "rxjs/observable/of";
+import { from as observableFrom } from "rxjs/observable/from";
+import { shareReplay as observableShareReplay } from "rxjs/operators";
 
-import "rxjs/add/observable/of";
-import "rxjs/add/observable/from";
-import "rxjs/add/operator/shareReplay";
-import "rxjs/add/operator/toPromise";
-
-import {ResourceModel} from "./resource-model";
-import {ResourceConfigurationOptions} from "./resource-configuration-options";
-import {ResourceActionOptions} from "./resource-action-options";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceAction} from "./resource-action";
-import {ResourceActionMethod} from "./resource-action-method";
-import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {PhantomGenerator} from "./phantom-generator/phantom-generator";
-import {ResourceCache} from "../cache/resource-cache";
-import {ResourceNoopCache} from "../cache/resource-noop-cache";
-import {PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker} from "../cache/resource-cache-item";
-import {clean, isPromiseLike} from "../utils/resource-utils";
-import {ResourceRegistry} from "./resource-registry";
+import { ResourceModel } from "./resource-model";
+import { ResourceConfigurationOptions } from "./resource-configuration-options";
+import { ResourceActionOptions } from "./resource-action-options";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceAction } from "./resource-action";
+import { ResourceActionMethod } from "./resource-action-method";
+import { ResourceActionHttpMethod } from "./resource-action-http-method";
+import { PhantomGenerator } from "./phantom-generator/phantom-generator";
+import { ResourceRegistry } from "./resource-registry";
+import { ResourceCache } from "../cache/resource-cache";
+import { ResourceNoopCache } from "../cache/resource-noop-cache";
+import {
+    PrepopulatedResourceCacheItem,
+    ResourceCacheItem,
+    ResourceCacheItemMarker
+} from "../cache/resource-cache-item";
+import { clean, isPromiseLike } from "../utils/resource-utils";
 
 
 /**
@@ -67,7 +76,8 @@ export abstract class ResourceBase {
      */
     protected cache: ResourceCache;
 
-    constructor(protected registry: ResourceRegistry, protected http: HttpClient) {
+    constructor(protected registry: ResourceRegistry,
+                protected http: HttpClient) {
         // Register the resource on the registry
         this.registry.register(this);
     }
@@ -266,7 +276,7 @@ export abstract class ResourceBase {
              * data representation that should be sent to the server. If the given payload is not a
              * `ResourceInstance` object, then we give it directly to the `clean` method.
              */
-            cleanedPayload = clean(payload instanceof ResourceInstance ? payload.dump() : payload),
+            cleanedPayload = clean(payload instanceof ResourceInstance ? payload.dump() : payload, actionOptions.privatePattern),
 
             /*
              * The request object for angular's `HttpClient` service.
@@ -337,7 +347,7 @@ export abstract class ResourceBase {
             /*
              * The observable created from the http event subject.
              */
-            httpEventObservable = Observable.from(httpEventSubject),
+            httpEventObservable = observableFrom(httpEventSubject),
 
             /*
              * Hot observable that wraps the `HTTPClient` observable.
@@ -481,9 +491,9 @@ export abstract class ResourceBase {
                      */
                     if (isPromiseLike(cacheObj)) {
                         (<Promise<ResourceCacheItem>>cacheObj)
-                            /*
-                             * Promise resolved, so we can progress with the cached result.
-                             */
+                        /*
+                         * Promise resolved, so we can progress with the cached result.
+                         */
                             .then((cacheObj) => {
                                 progressWithCachedItem(cacheObj);
                             })
@@ -512,7 +522,9 @@ export abstract class ResourceBase {
                 else {
                     progressWithHttpObservable(httpObservable);
                 }
-            }).shareReplay(-1);
+            }).pipe(
+                observableShareReplay(-1)
+            );
 
         /*
          * Contribute the request/response related model properties to the object.
@@ -534,7 +546,7 @@ export abstract class ResourceBase {
             get: function () {
                 // If already resolved, we return a promise of the resolved object.
                 if (resolved) {
-                    return Observable.of(obj).toPromise();
+                    return observableOf(obj).toPromise();
                 }
 
                 // Else we return a promise of our subject, so the promise resolves
@@ -577,7 +589,7 @@ export abstract class ResourceBase {
             value: null,
         });
         Object.defineProperty(contributedObject, '$observable', {
-            get: () => Observable.of(contributedObject),
+            get: () => observableOf(contributedObject),
         });
         Object.defineProperty(contributedObject, '$promise', {
             get: () => obj.$observable.toPromise(),
@@ -899,14 +911,16 @@ export abstract class Resource<T extends ResourceInstance> extends ResourceBase 
  * Exception that is thrown when a `Resource` method is used that needs the resource instance to be set up, before
  * it is actually set up.
  */
-export class ResourceNeedsOptionsError extends Error {}
+export class ResourceNeedsOptionsError extends Error {
+}
 
 
 /**
  * Exception that is thrown when a `Resource` method is used that needs the resource instance to be set up, before
  * it is actually set up.
  */
-export class ResourceUnexpectedResponseError extends Error {}
+export class ResourceUnexpectedResponseError extends Error {
+}
 
 
 /**

@@ -1,12 +1,13 @@
-import {Injectable} from "@angular/core";
+import { Injectable } from "@angular/core";
 
-import {ResourceBase} from "./resource";
+import { ResourceBase } from "./resource";
 
 
 /**
  * Exception thrown on resource registry errors (e.g. a resource with the given name is already registered).
  */
-export class ResourceRegistryError extends Error {}
+export class ResourceRegistryError extends Error {
+}
 
 
 @Injectable()
@@ -23,7 +24,7 @@ export class ResourceRegistry {
      * the `@ResourceConfiguration` decorator.
      * @param {ResourceBase} resource Resource to register
      */
-    register (resource: ResourceBase) {
+    register(resource: ResourceBase) {
         let
             options = resource.getOptions(),
             name = options.name;
@@ -44,7 +45,7 @@ export class ResourceRegistry {
      * @param {ResourceBase} resource Resource to get dependent resources for
      * @returns {ResourceBase[]} Dependent resources
      */
-    getDependentResources (resource: ResourceBase): ResourceBase[] {
+    getDependentResources(resource: ResourceBase): ResourceBase[] {
         let
             /**
              * Collection of resources.

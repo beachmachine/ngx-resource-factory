@@ -1,18 +1,18 @@
-import {Injectable, Type} from "@angular/core";
-import {async, inject, TestBed} from "@angular/core/testing";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { Injectable, Type } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {Resource} from "../resource/resource";
-import {ResourceInstance} from "../resource/resource-instance";
-import {ResourceConfiguration} from "../resource/resource-configuration";
-import {ResourceConfigurationOptions} from "../resource/resource-configuration-options";
-import {ResourceActionHttpMethod} from "../resource/resource-action-http-method";
-import {ResourceMemoryCache} from "./resource-memory-cache";
-import {ResourceActionMethod} from "../resource/resource-action-method";
-import {ResourceAction} from "../resource/resource-action";
-import {ResourceRegistry} from "../resource/resource-registry";
-import {NgxResourceFactoryModule} from "../module";
+import { ResourceMemoryCache } from "./resource-memory-cache";
+import { Resource } from "../resource/resource";
+import { ResourceInstance } from "../resource/resource-instance";
+import { ResourceConfiguration } from "../resource/resource-configuration";
+import { ResourceConfigurationOptions } from "../resource/resource-configuration-options";
+import { ResourceActionHttpMethod } from "../resource/resource-action-http-method";
+import { ResourceActionMethod } from "../resource/resource-action-method";
+import { ResourceAction } from "../resource/resource-action";
+import { ResourceRegistry } from "../resource/resource-registry";
+import { NgxResourceFactoryModule } from "../module";
 
 
 /**
@@ -393,7 +393,11 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
-                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                    id: 2,
+                    url: 'http://test/res/2/',
+                    title: 'b'
+                }]);
             })
         )
     );
@@ -428,7 +432,11 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.PUT,
-                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                    id: 2,
+                    url: 'http://test/res/2/',
+                    title: 'b'
+                }]);
             })
         )
     );
@@ -567,7 +575,11 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
-                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                    id: 2,
+                    url: 'http://test/res/2/',
+                    title: 'b'
+                }]);
             })
         )
     );
@@ -618,7 +630,11 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.PUT,
-                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]);
+                }).flush([{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                    id: 2,
+                    url: 'http://test/res/2/',
+                    title: 'b'
+                }]);
             })
         )
     );
@@ -648,7 +664,13 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
-                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+                }).flush({
+                    data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                        id: 2,
+                        url: 'http://test/res/2/',
+                        title: 'b'
+                    }]
+                });
             })
         )
     );
@@ -686,7 +708,13 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.PUT,
-                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+                }).flush({
+                    data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                        id: 2,
+                        url: 'http://test/res/2/',
+                        title: 'b'
+                    }]
+                });
             })
         )
     );
@@ -834,7 +862,13 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.GET,
-                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+                }).flush({
+                    data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                        id: 2,
+                        url: 'http://test/res/2/',
+                        title: 'b'
+                    }]
+                });
             })
         )
     );
@@ -888,7 +922,13 @@ describe('ResourceMemoryCache', () => {
                 backend.expectOne({
                     url: 'http://test/res/',
                     method: ResourceActionHttpMethod.PUT,
-                }).flush({data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {id: 2, url: 'http://test/res/2/', title: 'b'}]});
+                }).flush({
+                    data: [{id: 1, url: 'http://test/res/1/', title: 'a'}, {
+                        id: 2,
+                        url: 'http://test/res/2/',
+                        title: 'b'
+                    }]
+                });
             })
         )
     );

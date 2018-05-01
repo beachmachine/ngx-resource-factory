@@ -1,6 +1,7 @@
-import {HeaderBuilder} from "./header-builder";
-import {HttpHeaders} from "@angular/common/http";
-import {ResourceActionOptions} from "../resource-action-options";
+import { HttpHeaders } from "@angular/common/http";
+
+import { HeaderBuilder } from "./header-builder";
+import { ResourceActionOptions } from "../resource-action-options";
 
 
 export class DefaultHeaderBuilder implements HeaderBuilder {

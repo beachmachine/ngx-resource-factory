@@ -1,8 +1,8 @@
-import {Injectable} from "@angular/core";
-import {inject} from "@angular/core/testing";
+import { Injectable } from "@angular/core";
+import { inject } from "@angular/core/testing";
 
-import {NegativeIntGenerator} from "./negative-int-generator";
-import {ResourceInstance} from "../resource-instance";
+import { NegativeIntGenerator } from "./negative-int-generator";
+import { ResourceInstance } from "../resource-instance";
 
 /**
  * Model definition used for testing purposes.

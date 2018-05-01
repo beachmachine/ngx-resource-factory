@@ -1,5 +1,5 @@
-import {ResourceModel} from "./resource-model";
-import {clean, clone} from "../utils/resource-utils";
+import { ResourceModel } from "./resource-model";
+import { clone } from "../utils/resource-utils";
 
 
 /**
@@ -19,7 +19,7 @@ export class ResourceInstance {
      * @returns {ResourceInstance}
      */
     public load(data: object): ResourceInstance {
-        data = clean(data);
+        data = clone(data);
         return Object.assign(this, data);
     }
 

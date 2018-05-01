@@ -1,10 +1,10 @@
-import {inject, TestBed} from "@angular/core/testing";
-import {HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { inject, TestBed } from "@angular/core/testing";
+import { HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {DefaultHeaderBuilder} from "./default-header-builder";
-import {ResourceHeaderDefault} from "../resource-header-default";
-import {NgxResourceFactoryModule} from "../../module";
+import { DefaultHeaderBuilder } from "./default-header-builder";
+import { ResourceHeaderDefault } from "../resource-header-default";
+import { NgxResourceFactoryModule } from "../../module";
 
 
 describe('DefaultHeaderBuilder', () => {

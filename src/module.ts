@@ -1,7 +1,7 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
-import {HttpClientModule} from "@angular/common/http";
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { HttpClientModule } from "@angular/common/http";
 
-import {ResourceRegistry} from "./resource/resource-registry";
+import { ResourceRegistry } from "./resource/resource-registry";
 
 
 /*
@@ -13,7 +13,7 @@ import {ResourceRegistry} from "./resource/resource-registry";
     ],
     exports: [],
     declarations: [],
-    providers: [ /* declare in `forRoot()` */ ],
+    providers: [/* declare in `forRoot()` */],
 })
 export class NgxResourceFactoryModule {
 

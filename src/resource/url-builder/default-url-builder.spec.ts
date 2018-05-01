@@ -1,10 +1,10 @@
-import {inject, TestBed} from "@angular/core/testing";
-import {HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { inject, TestBed } from "@angular/core/testing";
+import { HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {DefaultUrlBuilder} from "./default-url-builder";
-import {ResourceParamDefaultFromPayload} from "../resource-param-default";
-import {NgxResourceFactoryModule} from "../../module";
+import { DefaultUrlBuilder } from "./default-url-builder";
+import { ResourceParamDefaultFromPayload } from "../resource-param-default";
+import { NgxResourceFactoryModule } from "../../module";
 
 
 describe('DefaultUrlBuilder', () => {

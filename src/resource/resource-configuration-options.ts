@@ -1,12 +1,12 @@
-import {Type} from "@angular/core/core";
+import { Type } from "@angular/core/core";
 
-import {ResourceParamDefault} from "./resource-param-default";
-import {ResourceCache} from "../cache/resource-cache";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceHeaderDefault} from "./resource-header-default";
-import {PhantomGenerator} from "./phantom-generator/phantom-generator";
-import {HeaderBuilder} from "./header-builder/header-builder";
-import {UrlBuilder} from "./url-builder/url-builder";
+import { ResourceParamDefault } from "./resource-param-default";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceHeaderDefault } from "./resource-header-default";
+import { PhantomGenerator } from "./phantom-generator/phantom-generator";
+import { HeaderBuilder } from "./header-builder/header-builder";
+import { UrlBuilder } from "./url-builder/url-builder";
+import { ResourceCache } from "../cache/resource-cache";
 
 
 /**
@@ -108,4 +108,9 @@ export interface ResourceConfigurationOptions {
      * Class to use to instantiate resource instances.
      */
     instanceClass?: Type<ResourceInstance>;
+
+    /**
+     * Pattern for private attribute names.
+     */
+    privatePattern?: RegExp;
 }

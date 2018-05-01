@@ -1,16 +1,16 @@
-import {Injectable, Type} from "@angular/core";
-import {async, inject, TestBed} from "@angular/core/testing";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { Injectable, Type } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {Resource} from "../resource/resource";
-import {ResourceInstance} from "../resource/resource-instance";
-import {ResourceConfiguration} from "../resource/resource-configuration";
-import {ResourceConfigurationOptions} from "../resource/resource-configuration-options";
-import {ResourceActionHttpMethod} from "../resource/resource-action-http-method";
-import {ResourceNoopCache} from "./resource-noop-cache";
-import {ResourceRegistry} from "../resource/resource-registry";
-import {NgxResourceFactoryModule} from "../module";
+import { ResourceNoopCache } from "./resource-noop-cache";
+import { Resource } from "../resource/resource";
+import { ResourceInstance } from "../resource/resource-instance";
+import { ResourceConfiguration } from "../resource/resource-configuration";
+import { ResourceConfigurationOptions } from "../resource/resource-configuration-options";
+import { ResourceActionHttpMethod } from "../resource/resource-action-http-method";
+import { ResourceRegistry } from "../resource/resource-registry";
+import { NgxResourceFactoryModule } from "../module";
 
 
 /**

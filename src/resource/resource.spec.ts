@@ -1,20 +1,20 @@
-import {Injectable, Type} from "@angular/core";
-import {async, inject, TestBed} from "@angular/core/testing";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { Injectable, Type } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {Resource} from "./resource";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceConfiguration} from "./resource-configuration";
-import {ResourceConfigurationOptions} from "./resource-configuration-options";
-import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {ResourceAction} from "./resource-action";
-import {ResourceActionMethod} from "./resource-action-method";
-import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
-import {Uuid4Generator} from "./phantom-generator/uuid4-generator";
-import {ResourceModel} from "./resource-model";
-import {ResourceRegistry} from "./resource-registry";
-import {NgxResourceFactoryModule} from "../module";
+import { Resource } from "./resource";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceConfiguration } from "./resource-configuration";
+import { ResourceConfigurationOptions } from "./resource-configuration-options";
+import { ResourceActionHttpMethod } from "./resource-action-http-method";
+import { ResourceAction } from "./resource-action";
+import { ResourceActionMethod } from "./resource-action-method";
+import { NegativeIntGenerator } from "./phantom-generator/negative-int-generator";
+import { Uuid4Generator } from "./phantom-generator/uuid4-generator";
+import { ResourceModel } from "./resource-model";
+import { ResourceRegistry } from "./resource-registry";
+import { NgxResourceFactoryModule } from "../module";
 
 
 /**
@@ -1361,7 +1361,7 @@ describe('Resource', () => {
                 }
 
                 let
-                    dataBlob = new Blob(['a', 'b', 'c', 'd'], {type : 'application/x-custom'}),
+                    dataBlob = new Blob(['a', 'b', 'c', 'd'], {type: 'application/x-custom'}),
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -1374,7 +1374,7 @@ describe('Resource', () => {
                         let
                             reader = new FileReader();
 
-                        reader.addEventListener("loadend", function() {
+                        reader.addEventListener("loadend", function () {
                             expect(reader.result).toBe('abcd');
                         });
 

@@ -1,7 +1,7 @@
-import {HttpRequest} from "@angular/common/http";
+import { HttpRequest } from "@angular/common/http";
 
-import {ResourceCache} from "./resource-cache";
-import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-item";
+import { ResourceCache } from "./resource-cache";
+import { ResourceCacheItem, ResourceCacheItemPromisable } from "./resource-cache-item";
 
 
 /**
@@ -9,26 +9,29 @@ import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-i
  */
 export class ResourceNoopCache implements ResourceCache {
 
-    constructor() {}
+    constructor() {
+    }
 
-    put (request: HttpRequest<any>, obj: ResourceCacheItemPromisable): ResourceCacheItemPromisable {
+    put(request: HttpRequest<any>, obj: ResourceCacheItemPromisable): ResourceCacheItemPromisable {
         return obj;
     };
 
-    pop (request: HttpRequest<any>): ResourceCacheItemPromisable {
+    pop(request: HttpRequest<any>): ResourceCacheItemPromisable {
         return null;
     };
 
-    get (request: HttpRequest<any>): ResourceCacheItemPromisable {
+    get(request: HttpRequest<any>): ResourceCacheItemPromisable {
         return null;
     };
 
-    has (request: HttpRequest<any>): boolean {
+    has(request: HttpRequest<any>): boolean {
         return false;
     };
 
-    populate (urlAttr: string, items: ResourceCacheItem[]) {};
+    populate(urlAttr: string, items: ResourceCacheItem[]) {
+    };
 
-    invalidate () {};
+    invalidate() {
+    };
 
 }

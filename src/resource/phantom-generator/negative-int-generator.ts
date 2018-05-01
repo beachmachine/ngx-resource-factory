@@ -1,5 +1,5 @@
-import {ResourceInstance} from "../resource-instance";
-import {PhantomGenerator} from "./phantom-generator";
+import { PhantomGenerator } from "./phantom-generator";
+import { ResourceInstance } from "../resource-instance";
 
 
 /**

@@ -1,6 +1,6 @@
-import {HttpResponse} from "@angular/common/http";
+import { HttpResponse } from "@angular/common/http";
 
-import {ResourceBase} from "../resource/resource";
+import { ResourceBase } from "../resource/resource";
 
 
 /**
@@ -21,7 +21,9 @@ export class ResourceCacheItem {
 
     protected _timestamp: number;
 
-    constructor(protected _response: HttpResponse<any>, protected _resource: ResourceBase, protected _ttl: number) {
+    constructor(protected _response: HttpResponse<any>,
+                protected _resource: ResourceBase,
+                protected _ttl: number) {
         this._timestamp = new Date().getTime();
     }
 

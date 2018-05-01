@@ -1,10 +1,10 @@
-import {ResourceConfigurationOptions} from "./resource-configuration-options";
-import {ResourceInstance} from "./resource-instance";
-import {NegativeIntGenerator} from "./phantom-generator/negative-int-generator";
-import {ResourceParamDefaultFromPayload} from "./resource-param-default";
-import {ResourceNoopCache} from "../cache/resource-noop-cache";
-import {DefaultHeaderBuilder} from "./header-builder/default-header-builder";
-import {DefaultUrlBuilder} from "./url-builder/default-url-builder";
+import { ResourceConfigurationOptions } from "./resource-configuration-options";
+import { ResourceInstance } from "./resource-instance";
+import { NegativeIntGenerator } from "./phantom-generator/negative-int-generator";
+import { ResourceParamDefaultFromPayload } from "./resource-param-default";
+import { DefaultHeaderBuilder } from "./header-builder/default-header-builder";
+import { DefaultUrlBuilder } from "./url-builder/default-url-builder";
+import { ResourceNoopCache } from "../cache/resource-noop-cache";
 
 
 export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOptions = {
@@ -26,6 +26,7 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
     cacheClass: ResourceNoopCache,
     cacheTtl: 3600,
     instanceClass: ResourceInstance,
+    privatePattern: /^[$].*/
 };
 
 
@@ -33,7 +34,8 @@ export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOption
  * Exception that is thrown when a `ResourceConfiguration` is missing configuration options or got wrong
  * configuration options.
  */
-export class ResourceConfigurationError extends Error {}
+export class ResourceConfigurationError extends Error {
+}
 
 
 /**

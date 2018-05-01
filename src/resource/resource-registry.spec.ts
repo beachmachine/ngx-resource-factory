@@ -1,14 +1,14 @@
-import {Injectable, Type} from "@angular/core";
-import {async, inject, TestBed} from "@angular/core/testing";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {HttpClientTestingModule, HttpTestingController} from "@angular/common/http/testing";
+import { Injectable, Type } from "@angular/core";
+import { async, inject, TestBed } from "@angular/core/testing";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import {Resource} from "./resource";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceConfiguration} from "./resource-configuration";
-import {ResourceConfigurationOptions} from "./resource-configuration-options";
-import {ResourceRegistry} from "./resource-registry";
-import {NgxResourceFactoryModule} from "../module";
+import { Resource } from "./resource";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceConfiguration } from "./resource-configuration";
+import { ResourceConfigurationOptions } from "./resource-configuration-options";
+import { ResourceRegistry } from "./resource-registry";
+import { NgxResourceFactoryModule } from "../module";
 
 
 /**
@@ -66,9 +66,14 @@ describe('ResourceRegistry', () => {
     it('Does collect tree-like dependencies',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                class TestResource1 extends TestResource {}
-                class TestResourceDep1 extends TestResource {}
-                class TestResourceDep2 extends TestResource {}
+                class TestResource1 extends TestResource {
+                }
+
+                class TestResourceDep1 extends TestResource {
+                }
+
+                class TestResourceDep2 extends TestResource {
+                }
 
                 let
                     registry = TestBed.get(ResourceRegistry, null),
@@ -105,9 +110,14 @@ describe('ResourceRegistry', () => {
     it('Does collect circular dependencies',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                class TestResource1 extends TestResource {}
-                class TestResourceDep1 extends TestResource {}
-                class TestResourceDep2 extends TestResource {}
+                class TestResource1 extends TestResource {
+                }
+
+                class TestResourceDep1 extends TestResource {
+                }
+
+                class TestResourceDep2 extends TestResource {
+                }
 
                 let
                     registry = TestBed.get(ResourceRegistry, null),

@@ -1,7 +1,7 @@
-import {HttpRequest} from "@angular/common/http";
+import { HttpRequest } from "@angular/common/http";
 
-import {ResourceCache} from "./resource-cache";
-import {ResourceCacheItem, ResourceCacheItemPromisable} from "./resource-cache-item";
+import { ResourceCache } from "./resource-cache";
+import { ResourceCacheItem, ResourceCacheItemPromisable } from "./resource-cache-item";
 
 
 /**
@@ -24,7 +24,7 @@ export class ResourceMemoryCache implements ResourceCache {
      * @param {HttpRequest<any>} request
      * @param {any} obj
      */
-    put (request: HttpRequest<any>, obj: ResourceCacheItemPromisable): ResourceCacheItemPromisable {
+    put(request: HttpRequest<any>, obj: ResourceCacheItemPromisable): ResourceCacheItemPromisable {
         let
             key = this.getKey(request);
 
@@ -49,7 +49,7 @@ export class ResourceMemoryCache implements ResourceCache {
      * @param {HttpRequest<any>} request
      * @returns {any}
      */
-    pop (request: HttpRequest<any>): ResourceCacheItemPromisable {
+    pop(request: HttpRequest<any>): ResourceCacheItemPromisable {
         let
             key = this.getKey(request),
             obj;
@@ -81,7 +81,7 @@ export class ResourceMemoryCache implements ResourceCache {
      * @param {HttpRequest<any>} request
      * @returns {any}
      */
-    get (request: HttpRequest<any>): ResourceCacheItemPromisable {
+    get(request: HttpRequest<any>): ResourceCacheItemPromisable {
         let
             key = this.getKey(request),
             obj;
@@ -113,18 +113,18 @@ export class ResourceMemoryCache implements ResourceCache {
      * @param {HttpRequest<any>} request
      * @returns {boolean}
      */
-    has (request: HttpRequest<any>): boolean {
+    has(request: HttpRequest<any>): boolean {
         return this.get(request) !== null;
     };
 
     /**
      * Invalidate all data from the cache.
      */
-    invalidate () {
+    invalidate() {
         this.data = new Map<string, ResourceCacheItemPromisable>();
     };
 
-    populate (urlAttr: string, items: ResourceCacheItem[]) {
+    populate(urlAttr: string, items: ResourceCacheItem[]) {
         for (let item of items) {
             // Only populate the cache with the item if the item has a `urlAttr` set
             if (item && item[urlAttr]) {

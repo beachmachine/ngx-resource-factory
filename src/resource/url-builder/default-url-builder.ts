@@ -1,5 +1,5 @@
-import {UrlBuilder} from "./url-builder";
-import {ResourceActionOptions} from "../resource-action-options";
+import { UrlBuilder } from "./url-builder";
+import { ResourceActionOptions } from "../resource-action-options";
 
 
 export class DefaultUrlBuilder implements UrlBuilder {

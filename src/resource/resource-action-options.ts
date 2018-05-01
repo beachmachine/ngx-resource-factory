@@ -1,11 +1,11 @@
-import {Type} from "@angular/core";
+import { Type } from "@angular/core";
 
-import {ResourceActionHttpMethod} from "./resource-action-http-method";
-import {ResourceInstance} from "./resource-instance";
-import {ResourceParamDefault} from "./resource-param-default";
-import {ResourceHeaderDefault} from "./resource-header-default";
-import {HeaderBuilder} from "./header-builder/header-builder";
-import {UrlBuilder} from "./url-builder/url-builder";
+import { ResourceActionHttpMethod } from "./resource-action-http-method";
+import { ResourceInstance } from "./resource-instance";
+import { ResourceParamDefault } from "./resource-param-default";
+import { ResourceHeaderDefault } from "./resource-header-default";
+import { HeaderBuilder } from "./header-builder/header-builder";
+import { UrlBuilder } from "./url-builder/url-builder";
 
 
 /**
@@ -103,5 +103,10 @@ export interface ResourceActionOptions {
      * Attribute name where to find the total amount of items on the query call (resource list calls).
      */
     totalAttr?: string;
+
+    /**
+     * Pattern for private attribute names.
+     */
+    privatePattern?: RegExp;
 
 }
