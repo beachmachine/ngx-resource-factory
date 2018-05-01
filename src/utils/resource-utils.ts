@@ -19,8 +19,8 @@ export function clean<T>(payload: T, privatePattern: RegExp = DEFAULT_PRIVATE_PA
         return <any>cleanList(payload, privatePattern);
     }
 
-    // If payload is a plain object, call the method for cleaning objects
-    else if (payload && typeof payload === 'object' && payload.constructor === Object) {
+    // If payload is an object, call the method for cleaning objects
+    else if (payload && typeof payload === 'object') {
         return <any>cleanObject(payload, privatePattern);
     }
 
@@ -73,6 +73,13 @@ export function cleanObject<T extends Object>(payload: T, privatePattern: RegExp
          */
         else if (typeof resultPayload[propertyName] === 'function') {
             delete resultPayload[propertyName];
+        }
+
+        /*
+         * Else clean the attribute recursively
+         */
+        else {
+            resultPayload[propertyName] = clean(resultPayload[propertyName], privatePattern);
         }
     }
 

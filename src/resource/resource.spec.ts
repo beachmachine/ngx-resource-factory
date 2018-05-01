@@ -1493,4 +1493,130 @@ describe('Resource', () => {
             })
         )
     );
+
+    it('Does clean private attributes before submit',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                        $private: true
+                    });
+
+                testInstance.$update();
+
+                backend.expectOne((request) => {
+                    return request.body.$private === undefined;
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does clean private attributes before submit recursively',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                        tests: [
+                            {
+                                id: 1,
+                                $private: true
+                            },
+                            {
+                                id: 2,
+                                $private: true
+                            },
+                        ]
+                    });
+
+                testInstance.$update();
+
+                backend.expectOne((request) => {
+                    return request.body.tests[0].$private === undefined &&
+                           request.body.tests[1].$private === undefined;
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does clean custom private attributes before submit',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                        privatePattern: /^[$_].*/
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                        _private: true
+                    });
+
+                testInstance.$update();
+
+                backend.expectOne((request) => {
+                    return request.body._private === undefined;
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does clean custom private attributes before submit recursively',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                let
+                    testResource = createResource(TestResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                        privatePattern: /^[$_].*/
+                    }),
+                    testInstance = testResource.create({
+                        id: 1,
+                        title: 'a',
+                        tests: [
+                            {
+                                id: 1,
+                                _private: true
+                            },
+                            {
+                                id: 2,
+                                _private: true
+                            },
+                        ]
+                    });
+
+                testInstance.$update();
+
+                backend.expectOne((request) => {
+                    return request.body.tests[0]._private === undefined &&
+                           request.body.tests[1]._private === undefined;
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
 });
