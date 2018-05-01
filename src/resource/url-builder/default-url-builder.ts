@@ -10,7 +10,7 @@ export class DefaultUrlBuilder implements UrlBuilder {
 
         let
             urlSuffix = options.urlSuffix || '',
-            url = new URL(urlSuffix ? options.url + urlSuffix : options.url, window.location.href || null),
+            url = new URL(urlSuffix ? options.url + urlSuffix : options.url, location && location.href || null),
             urlRegex = new RegExp('(:)(\\w+)(\\W|$)', 'g'),
             pathname = url.pathname || '',
             search = url.search || '',

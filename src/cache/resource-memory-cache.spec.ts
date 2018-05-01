@@ -205,7 +205,7 @@ describe('ResourceMemoryCache', () => {
                     method: ResourceActionHttpMethod.GET,
                 }).flush({id: 1, title: 'a'});
 
-                window.setTimeout(() => {
+                setTimeout(() => {
                     testResource.get({pk: 1});
 
                     backend.expectNone({
@@ -237,7 +237,7 @@ describe('ResourceMemoryCache', () => {
                     method: ResourceActionHttpMethod.GET,
                 }).flush({id: 1, title: 'a'});
 
-                window.setTimeout(() => {
+                setTimeout(() => {
                     testResource.get({pk: 1});
 
                     backend.expectOne({

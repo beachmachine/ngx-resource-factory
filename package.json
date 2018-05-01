@@ -1,6 +1,6 @@
 {
   "name": "ngx-resource-factory",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Interact with RESTful APIs with advanced features as caches and data stores.",
   "main": "bundle/ngx-resource-factory.min.js",
   "module": "module.js",
@@ -64,9 +64,7 @@
     "@angular/common": "^5.0.0",
     "@angular/core": "^5.0.0",
     "@angular/http": "^5.0.0",
-    "rxjs": "^5.5.0"
-  },
-  "dependencies": {
-    "lodash": "^4.17.5"
+    "rxjs": "^5.5.0",
+    "lodash": "^4.17.0"
   }
 }
