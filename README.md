@@ -326,3 +326,14 @@ export class MyComponent implements OnInit {
 
 }
 ```
+
+## Notes
+
+#### Internet Explorer Support
+
+The package makes use of the URL API, which is not provided in IE11 or earlier: https://caniuse.com/#feat=url
+Make sure to install the URL API polyfill (`npm install url-polyfill --save`) and add it into polyfills.ts:
+
+```
+import 'url-polyfill';
+```
