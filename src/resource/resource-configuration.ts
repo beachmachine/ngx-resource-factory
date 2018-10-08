@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { ResourceConfigurationOptions } from "./resource-configuration-options";
 import { ResourceInstance } from "./resource-instance";
 import { NegativeIntGenerator } from "./phantom-generator/negative-int-generator";
@@ -51,7 +52,11 @@ export function ResourceConfiguration(resourceOptions?: ResourceConfigurationOpt
              * Options for the resource.
              * @type {ResourceConfigurationOptions}
              */
-            options: ResourceConfigurationOptions = Object.assign({}, DEFAULT_RESOURCE_CONFIGURATION_OPTIONS, resourceOptions);
+            options: ResourceConfigurationOptions = Object.assign(
+                {}, 
+                cloneDeep(DEFAULT_RESOURCE_CONFIGURATION_OPTIONS), 
+                resourceOptions
+            );
 
         /*
          * Check if configurations are correct and throw error otherwise.
