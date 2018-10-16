@@ -329,6 +329,12 @@ export class MyComponent implements OnInit {
 
 ## Notes
 
+#### Usage with Angular 6.x
+
+Angular 6.x is using RxJS 6.x. This has brings some changes in the API of RxJS and requires to additionally install [rxjs-compat](https://www.npmjs.com/package/rxjs-compat). Make sure the version of `rxjs` and `rxjs-compat` are compatible.
+
+This can be removed and `rxjs-compat` can be moved to peer dependencies once the support for Angular 5.x will be dropped.
+
 #### Internet Explorer Support
 
 The package makes use of the URL API, which is not provided in IE11 or earlier: https://caniuse.com/#feat=url
