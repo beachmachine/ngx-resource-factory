@@ -144,4 +144,34 @@ describe('ResourceUtils', () => {
             expect(cleanedTestObj.$isPrivate).not.toBeDefined();
         })
     );
+
+    it('Does handle `FormData` objects with `clean` function',
+        inject([], () => {
+            let
+                data = new FormData(),
+                cleanedData = clean(data);
+
+            expect(cleanedData instanceof FormData).toBe(true);
+        })
+    );
+
+    it('Does handle `FormData` objects with `cleanList` function',
+        inject([], () => {
+            let
+                data = new FormData(),
+                cleanedData = cleanList([data]);
+
+            expect(cleanedData[0] instanceof FormData).toBe(true);
+        })
+    );
+
+    it('Does handle `FormData` objects with `cleanObject` function',
+        inject([], () => {
+            let
+                data = new FormData(),
+                cleanedData = cleanObject(data);
+
+            expect(cleanedData instanceof FormData).toBe(true);
+        })
+    );
 });

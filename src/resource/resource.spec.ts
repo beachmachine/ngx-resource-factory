@@ -15,6 +15,7 @@ import { Uuid4Generator } from "./phantom-generator/uuid4-generator";
 import { ResourceModel } from "./resource-model";
 import { ResourceRegistry } from "./resource-registry";
 import { NgxResourceFactoryModule } from "../module";
+import { ResourceHeaderDefault } from "./resource-header-default";
 
 
 /**
@@ -1615,6 +1616,52 @@ describe('Resource', () => {
                 backend.expectOne((request) => {
                     return request.body.tests[0]._private === undefined &&
                            request.body.tests[1]._private === undefined;
+                }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does upload multipart/form-data with `FormData` payloads',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestSpecificResource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.POST,
+                        headerDefaults: [
+                            new ResourceHeaderDefault('Content-Type', 'multipart/form-data'),
+                        ],
+                    })
+                    upload: ResourceActionMethod<any, any, any>;
+                }
+
+
+                let
+                    testResource = createResource(TestSpecificResource, {
+                        name: 'TestResource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        totalAttr: 'total',
+                        instanceClass: TestModel,
+                    }),
+                    formData = new FormData();
+
+                formData.append('file', 'FILE_DATA', 'file.name');
+
+                testResource.upload({}, formData).$promise
+                    .then((result) => {
+                        expect(result).not.toBe(null);
+                    });
+
+                backend.expectOne(req => {
+                    return req.headers.get('Content-Type') === 'multipart/form-data' &&
+                           req.body instanceof FormData;
                 }).flush({id: 1, title: 'a'});
             })
         )

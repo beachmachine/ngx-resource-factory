@@ -57,6 +57,13 @@ export function cleanList<T extends Array<any>>(payload: T, privatePattern: RegE
  * @returns {Object} Cleaned object
  */
 export function cleanObject<T extends Object>(payload: T, privatePattern: RegExp = DEFAULT_PRIVATE_PATTERN): T {
+    /*
+     * FormData instances cannot be cloned
+     */
+    if (payload instanceof FormData) {
+        return payload;
+    }
+
     let
         resultPayload: Object = clone(payload);
 
