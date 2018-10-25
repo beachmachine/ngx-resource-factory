@@ -399,7 +399,7 @@ In your component's upload-function, set up the payload with FormData() and appe
 
 ```typescript
 [..]
-import { UploadableFile, FileResource } from '@app/services/resource/file.resource';
+import { FileResource } from '@app/services/resource/file.resource';
 
 export class FileUploadComponent extends ModalBaseComponent implements OnInit, OnDestroy {
     file: File;
