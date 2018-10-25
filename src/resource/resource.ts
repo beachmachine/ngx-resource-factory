@@ -8,7 +8,7 @@ import {
     HttpResponse
 } from "@angular/common/http";
 
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 import { Observer } from "rxjs/Observer";
 import { Subject } from "rxjs/Subject";
 import { of as observableOf } from "rxjs/observable/of";
