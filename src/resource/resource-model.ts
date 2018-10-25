@@ -1,6 +1,6 @@
 import { HttpRequest, HttpResponse } from "@angular/common/http";
 
-import { Observable } from "rxjs/Observable";
+import { Observable } from "rxjs";
 
 import { ResourceModelActionMethod } from "./resource-action-method";
 import { ResourceInstance } from "./resource-instance";
