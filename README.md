@@ -349,10 +349,14 @@ import 'url-polyfill';
 
 #### File Upload
 
-Add a custom 'upload'-action to your File-Service:
+A file upload service can be easily realized by adding a custom action for the POST-method, here's an example-implementation.
 
-@app/services/resource/file.resource:
+Add a ResourceAction for POST and an 'upload'-ResourceActionMethod to your File-Service (Which we will then use in the component further down):
+
+
 ```typescript
+@app/services/resource/file.resource.ts:
+
 import { environment } from '../../../environments/environment';
 
 import { Resource } from 'ngx-resource-factory/resource/resource';
@@ -395,9 +399,10 @@ export class FileResource extends Resource<UploadableFile> {
 The content-type will be automatically set by the browser.
 
 
-In your component's upload-function, set up the payload with FormData() and append the file to it:
+In your component's upload-function, set up the payload with FormData() and append the file to it, which we will then POST to the backend with the 'upload'-ResourceActionMethod we have implemented in the service above:
 
 ```typescript
+@app/screens/fileupload/fileupload.component.ts:
 [..]
 import { FileResource } from '@app/services/resource/file.resource';
 
