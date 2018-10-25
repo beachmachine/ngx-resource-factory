@@ -351,7 +351,7 @@ import 'url-polyfill';
 
 A file upload service can be easily realized by adding a custom action for the POST-method, here's an example-implementation.
 
-Add a ResourceAction for POST and an 'upload'-ResourceActionMethod to your File-Service (Which we will then use in the component further down):
+Add a ResourceAction for POST and an 'upload'-[ResourceActionMethod](#define-custom-action-methods) to your File-Service (Which we will then use in the component further down):
 
 
 ```typescript
