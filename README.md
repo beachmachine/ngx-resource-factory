@@ -343,3 +343,99 @@ Make sure to install the URL API polyfill (`npm install url-polyfill --save`) an
 ```
 import 'url-polyfill';
 ```
+
+
+## Examples
+
+#### File Upload
+
+A file upload service can be easily realized by adding a custom action for the POST-method, here's an example-implementation.
+
+Add a ResourceAction for POST and an 'upload'-[ResourceActionMethod](#define-custom-action-methods) to your File-Service (Which we will then use in the component further down):
+
+
+```typescript
+@app/services/resource/file.resource.ts:
+
+import { environment } from '../../../environments/environment';
+
+import { Resource } from 'ngx-resource-factory/resource/resource';
+import { ResourceConfiguration } from 'ngx-resource-factory/resource/resource-configuration';
+import { ResourceInstance } from 'ngx-resource-factory/resource/resource-instance';
+import { ResourceAction } from 'ngx-resource-factory/resource/resource-action';
+import { ResourceActionMethod } from 'ngx-resource-factory/resource/resource-action-method';
+import { ResourceActionHttpMethod } from 'ngx-resource-factory/resource/resource-action-http-method';
+
+export class UploadableFile extends ResourceInstance {
+    pk: number;
+    parent_pk: number;
+}
+
+@Injectable()
+@ResourceConfiguration({
+    name: 'FileResource',
+    url: `${environment.api_url}/file/:pk/`,
+    pkAttr: 'pk',
+    instanceClass: UploadableFile,
+    stripTrailingSlashes: false,
+    dataAttr: 'results',
+    useDataAttrForList: true,
+    useDataAttrForObject: false,
+    totalAttr: 'count',
+})
+export class FileResource extends Resource<UploadableFile> {
+
+    @ResourceAction({
+        method: ResourceActionHttpMethod.POST,
+        paramDefaults: [],
+        isList: false,
+        invalidateCache: true,
+    })
+    upload: ResourceActionMethod<any, any, any>;
+
+}
+```
+
+The content-type will be automatically set by the browser.
+
+
+In your component's upload-function, set up the payload with FormData() and append the file to it, which we will then POST to the backend with the 'upload'-ResourceActionMethod we have implemented in the service above:
+
+```typescript
+@app/screens/fileupload/fileupload.component.ts:
+[..]
+import { FileResource } from '@app/services/resource/file.resource';
+
+export class FileUploadComponent extends ModalBaseComponent implements OnInit, OnDestroy {
+    file: File;
+[..]
+
+    constructor(
+        public fileResource: FileResource
+    )
+
+[..]
+
+    onFileChange(event) {
+        if ( event.target.files.length > 0 ) {
+            this.file = event.target.files[0]
+        }
+    }
+
+    uploadAppBinary() {
+        const payload: FormData = new FormData();
+        payload.append('path', this.file, this.file.name);
+        payload.append('parent_pk', this.parent.pk);
+        this.fileResource.upload({}, payload).$promise
+            .then((data) => {
+                console.log('Fileupload success:');
+                console.log(data);
+            })
+            .catch((reason) => {
+                console.log('Fileupload error:');
+                console.log(reason);
+            });
+    }
+```
+
+
