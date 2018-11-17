@@ -60,10 +60,10 @@
     "zone.js": "^0.8.14"
   },
   "peerDependencies": {
-    "@angular/common": "^5.0.0",
-    "@angular/core": "^5.0.0",
-    "@angular/http": "^5.0.0",
+    "@angular/common": ">=5.0.0 <8.0.0",
+    "@angular/core": ">=5.0.0 <8.0.0",
+    "@angular/http": ">=5.0.0 <8.0.0",
     "lodash": "^4.17.0",
-    "rxjs": "^5.5.0"
+    "rxjs": ">=6.0.0 || ^5.6.0-forward-compat.4"
   }
 }
