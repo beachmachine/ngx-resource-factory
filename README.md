@@ -12,6 +12,8 @@ them at once, and an advanced resource caching.
 This library is currently in an early stage of development and is missing lots of features as well as a proper 
 documentation.
 
+You can find a pratical example for this library in [this blog-entry](https://nezhar.com/blog/consume-rest-api-in-angular-with-ngx-resource-factory/) by [@nezhar](https://github.com/nezhar)
+
 
 ## Usage
 
