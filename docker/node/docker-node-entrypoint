@@ -1,54 +1,70 @@
 #!/bin/bash
 
-NODE_RUN_UID=${NODE_RUN_UID:=1000}
-NODE_RUN_USER=${NODE_RUN_USER:=user}
-NODE_RUN_GROUP=${NODE_RUN_GROUP:=user}
-NODE_RUN_USER_TEST=$(grep "[a-zA-Z0-9\-\_]*:[a-zA-Z]:${NODE_RUN_UID}:" /etc/passwd)
+# check who owns the working directory
+USER_ID=$(stat -c "%u" "${PWD}/src")
+
+# Set a sane defaults for the fallback UID if determination failed
+if [[ -z "${USER_ID}" ]] || [[ "${USER_ID}" -eq "0" ]]; then
+    USER_ID=1000
+    echo "Set fallback UID to '${USER_ID}'"
+
+# Else keep the fallback UID determined by the ownership of the directory
+else
+    echo "Set fallback UID to '${USER_ID}' from ownership of ${PWD}/src"
+fi
+
+# Set the run uid to the user id we just retrieved
+RUN_UID=${RUN_UID:=${USER_ID}}
+RUN_USER=${RUN_USER:=user}
+RUN_GROUP=${RUN_GROUP:=user}
+USER_TEST=$(grep "[a-zA-Z0-9\-\_]*:[a-zA-Z]:${RUN_UID}:" /etc/passwd)
 
 # Make sure the given group exists
-getent group $NODE_RUN_GROUP > /dev/null || groupadd $NODE_RUN_GROUP > /dev/null
+getent group "${RUN_GROUP}" || groupadd "${RUN_GROUP}"
 
 # Update the user to the configured UID and group if
 # it already exists.
-if [ -n "${NODE_RUN_USER_TEST}" ]; then
-    echo "Update user '$NODE_RUN_USER'"
+if [[ -n "${USER_TEST}" ]]; then
+    echo "Update user '${RUN_USER}'"
 
-    usermod -l ${NODE_RUN_USER} $(id -un ${NODE_RUN_UID}) 1> /dev/null 2>&1
-    usermod -u $NODE_RUN_UID -g $NODE_RUN_GROUP $NODE_RUN_USER 1> /dev/null 2>&1
+    usermod -l "${RUN_USER}" $(id -un "${RUN_UID}")
+    usermod -u "${RUN_UID}" -g "${RUN_GROUP}" "${RUN_USER}"
 
 # Else create the user with the configured UID and group
 else
-    echo "Create user '$NODE_RUN_USER'"
+    echo "Create user '${RUN_USER}'"
 
     # Create the user with the corresponding group
-    useradd -u $NODE_RUN_UID -g $NODE_RUN_GROUP -d /home/$NODE_RUN_USER $NODE_RUN_USER 1> /dev/null 2>&1
+    mkdir "/home/${RUN_USER}"
+    useradd -u "${RUN_UID}" -g "${RUN_GROUP}" -d "/home/${RUN_USER}" "${RUN_USER}"
+    chown "${RUN_USER}:${RUN_GROUP}" "/home/${RUN_USER}"
 fi
 
-# Make sure $HOME directory of user exists
-mkdir /home/$NODE_RUN_USER 1> /dev/null 2>&1
-chown $NODE_RUN_USER:$NODE_RUN_GROUP /home/$NODE_RUN_USER
-export HOME=/home/$NODE_RUN_USER
-
-# Make the user a sudoer
-echo "$NODE_RUN_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/100-$NODE_RUN_USER
-echo "Defaults:$NODE_RUN_USER !requiretty" >> /etc/sudoers
+# Make the user to an sudoer
+echo "${RUN_USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/100-user
+echo "Defaults:${RUN_USER} !requiretty" >> /etc/sudoers
 
 # Fix permissions of sudoers files
 chmod 600 /etc/sudoers
-chmod 600 /etc/sudoers.d/100-$NODE_RUN_USER
+chmod 600 /etc/sudoers.d/100-user
+
+# Create user's home directory
+export HOME="/home/${RUN_USER}"
+mkdir -p "${HOME}" 1> /dev/null 2>&1
+chown -R "${RUN_USER}:${RUN_GROUP}" "${HOME}"
 
 # Setup data storage for the application
 mkdir -p /var/lib/app 1> /dev/null 2>&1
-chown -R $NODE_RUN_USER:$NODE_RUN_GROUP /var/lib/app
+chown -R "${RUN_USER}:${RUN_GROUP}" /var/lib/app
 find /var/lib/app -type d -exec chmod 750 {} +
 find /var/lib/app -type f -exec chmod 640 {} +
 
 # Block the container if no commands supplied
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
     exec sleep infinity
 
 # Else start the supplied commands with the configured
 # user.
 else
-    exec su - $NODE_RUN_USER -m -s /bin/bash -c "cd $PWD; $*"
+    exec su - "${RUN_USER}" -m -s /bin/bash -c "cd '${PWD}'; $*"
 fi

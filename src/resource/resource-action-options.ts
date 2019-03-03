@@ -24,6 +24,12 @@ export interface ResourceActionOptions {
     isList?: boolean;
 
     /**
+     * The response only primitive data (e.g. string, number, ...) and not
+     * a (list of) objects.
+     */
+    isPrimitive?: boolean;
+
+    /**
      * Use the cache for the request or bypass it.
      */
     useCache?: boolean;

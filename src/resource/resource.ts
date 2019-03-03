@@ -88,7 +88,7 @@ export abstract class ResourceBase {
      * @returns {T} The given resource instance bound to the resource
      */
     @NeedsOptions()
-    bind<T extends ResourceInstance>(obj: T): ResourceModel<T> {
+    bind<T extends Object>(obj: T): ResourceModel<T> {
         let
             /*
              * Options for the resource
@@ -759,6 +759,7 @@ export abstract class ResourceBase {
         let
             self = this,
             instanceClass = actionOptions.instanceClass,
+            isPrimitive = actionOptions.isPrimitive,
             cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
             cacheTtl = this.getOptions().cacheTtl,
             body = response.body,
@@ -786,9 +787,16 @@ export abstract class ResourceBase {
             for (let item of responseList) {
                 let
                     prepopulateCache = urlAttr && item && item[urlAttr] && !response[ResourceCacheItemMarker.CACHED],
-                    obj = this.makeResourceModel(item, instanceClass);
+                    obj;
 
-                obj.load(item);
+                if (isPrimitive) {
+                    obj = item;
+                }
+                else {
+                    obj = this.makeResourceModel(item, instanceClass);
+                    obj.load(item);
+                }
+
                 result.push(obj);
 
                 // Populate the cache with the raw item if we have an `urlAttr`
@@ -831,10 +839,11 @@ export abstract class ResourceBase {
             body = response.body,
             useDataAttr = actionOptions.dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
             dataAttr = actionOptions.dataAttr,
+            isPrimitive = actionOptions.isPrimitive,
             responseObject = (useDataAttr ? body[dataAttr] : body) || null;
 
         // If the response does not contain a JSON object, we log an error and add nothing to the result array.
-        if (responseObject !== null && (typeof responseObject !== 'object' || responseObject.constructor !== Object)) {
+        if (!isPrimitive && responseObject !== null && (typeof responseObject !== 'object' || responseObject.constructor !== Object)) {
             throw new ResourceUnexpectedResponseError(
                 "Response does not contain an object literal but `isList` is set " +
                 "to `false`."
@@ -842,8 +851,11 @@ export abstract class ResourceBase {
         }
 
         // On responses with data we use the `load` method of the result object to transform the data.
-        if (responseObject !== null) {
+        if (!isPrimitive && responseObject !== null) {
             result = <ResourceModelResult>result.load(responseObject);
+        }
+        else {
+            result = responseObject;
         }
 
         return result;

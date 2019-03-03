@@ -3,7 +3,7 @@ import { async, inject, TestBed } from "@angular/core/testing";
 import { HttpClient, HttpClientModule } from "@angular/common/http";
 import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
 
-import { Resource } from "./resource";
+import { Resource, ResourceBase } from "./resource";
 import { ResourceInstance } from "./resource-instance";
 import { ResourceConfiguration } from "./resource-configuration";
 import { ResourceConfigurationOptions } from "./resource-configuration-options";
@@ -38,6 +38,20 @@ class TestResource extends Resource<TestModel> {
 
 describe('Resource', () => {
     /**
+     * Creates an instance of the given resource class.
+     *
+     * @param {Type<T extends TestResource>} cls Resource class
+     * @returns {T}
+     */
+    function instantiateResource<T extends ResourceBase>(cls: Type<T>): T {
+        let
+            registry = TestBed.get(ResourceRegistry, null),
+            httpClient = TestBed.get(HttpClient, null);
+
+        return new cls(registry, httpClient);
+    }
+
+    /**
      * Creates a resource service for the given resource class with
      * the given resource configuration.
      *
@@ -45,12 +59,8 @@ describe('Resource', () => {
      * @param {ResourceConfigurationOptions} resourceConfiguration Resource configuration to use
      * @returns {T}
      */
-    function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
-        let
-            registry = TestBed.get(ResourceRegistry, null),
-            httpClient = TestBed.get(HttpClient, null);
-
-        return new (Injectable()(ResourceConfiguration(resourceConfiguration)(cls)))(registry, httpClient);
+    function createResource<T extends ResourceBase>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
+        return instantiateResource((Injectable()(ResourceConfiguration(resourceConfiguration)(cls))));
     }
 
     beforeEach(() => {
@@ -1663,6 +1673,166 @@ describe('Resource', () => {
                     return req.headers.get('Content-Type') === 'multipart/form-data' &&
                            req.body instanceof FormData;
                 }).flush({id: 1, title: 'a'});
+            })
+        )
+    );
+
+    it('Does get primitive data lists if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: null,
+                        isList: true,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string[]) => {
+                            expect(r[0]).toEqual('a');
+                            expect(r[1]).toEqual('b');
+                            expect(r[2]).toEqual('c');
+                        }
+                    },
+                    resource = instantiateResource(TestResource);
+
+                resource.action1(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush(['a', 'b', 'c']);
+            })
+        )
+    );
+
+    it('Does get primitive data lists if `dataAttr` set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: 'data',
+                        isList: true,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string[]) => {
+                            expect(r[0]).toEqual('a');
+                            expect(r[1]).toEqual('b');
+                            expect(r[2]).toEqual('c');
+                        }
+                    },
+                    resource = instantiateResource(TestResource);
+
+                resource.action1(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: ['a', 'b', 'c']});
+            })
+        )
+    );
+
+    it('Does get primitive data if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: null,
+                        isList: false,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string) => {
+                            expect(r).toEqual('a');
+                        }
+                    },
+                    resource = instantiateResource(TestResource);
+
+                resource.action1(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush('a');
+            })
+        )
+    );
+
+    it('Does get primitive data if `dataAttr` set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends ResourceBase {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: 'data',
+                        isList: false,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string) => {
+                            expect(r).toEqual('a');
+                        }
+                    },
+                    resource = instantiateResource(TestResource);
+
+                resource.action1(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: 'a'});
             })
         )
     );
