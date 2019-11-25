@@ -5,6 +5,7 @@ import { ResourceActionHttpMethod } from "./resource-action-http-method";
 export const DEFAULT_RESOURCE_ACTION_OPTIONS: ResourceActionOptions = {
     method: ResourceActionHttpMethod.GET,
     isList: false,
+    isPrimitive: false,
     useCache: true,
     invalidateCache: false,
     reportProgress: false,
@@ -70,6 +71,14 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
                 error = null;
 
             /*
+             * Force the `instanceClass` option to be `null` if a primitive
+             * endpoint is defined.
+             */
+            if (options.isPrimitive) {
+                options.instanceClass = null;
+            }
+
+            /*
              * Handle method signature where the method can be called as follows:
              * - query, payload, successCb, errorCb
              * - query, successCb, errorCb
@@ -77,6 +86,7 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
              * - successCb, errorCb
              * - query, successCb
              * - query, payload
+             * - successCb
              * - query
              */
             switch (args.length) {
@@ -127,9 +137,15 @@ export function ResourceAction(actionOptions?: ResourceActionOptions) {
 
                     break;
 
-                // case: query
                 case 1:
-                    query = args[0];
+                    // case: successCb
+                    if (typeof args[0] === 'function') {
+                        success = args[0];
+                    }
+                    // case: query
+                    else {
+                        query = args[0];
+                    }
 
                     break;
             }

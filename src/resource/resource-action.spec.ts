@@ -806,4 +806,180 @@ describe('ResourceAction', () => {
             })
         )
     );
+
+    it('Does get primitive data lists if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends Resource<ResourceInstance> {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: null,
+                        isList: true,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string[]) => {
+                            expect(r[0]).toEqual('a');
+                            expect(r[1]).toEqual('b');
+                            expect(r[2]).toEqual('c');
+                        }
+                    },
+                    resource = instantiateResource(TestResource),
+                    testInstance = resource.create({
+                        id: 1,
+                    });
+
+                testInstance.$action1().$promise
+                    .then(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush(['a', 'b', 'c']);
+            })
+        )
+    );
+
+    it('Does get primitive data lists if `dataAttr` set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends Resource<ResourceInstance> {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: 'data',
+                        isList: true,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string[]) => {
+                            expect(r[0]).toEqual('a');
+                            expect(r[1]).toEqual('b');
+                            expect(r[2]).toEqual('c');
+                        }
+                    },
+                    resource = instantiateResource(TestResource),
+                    testInstance = resource.create({
+                        id: 1,
+                    });
+
+                testInstance.$action1().$promise
+                    .then(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: ['a', 'b', 'c']});
+            })
+        )
+    );
+
+    it('Does get primitive data if `dataAttr` not set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends Resource<ResourceInstance> {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: null,
+                        isList: false,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string) => {
+                            expect(r).toEqual('a');
+                        }
+                    },
+                    resource = instantiateResource(TestResource),
+                    testInstance = resource.create({
+                        id: 1,
+                    });
+
+                testInstance.$action1().$promise
+                    .then(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush('a');
+            })
+        )
+    );
+
+    it('Does get primitive data if `dataAttr` set',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                @Injectable()
+                @ResourceConfiguration({
+                    name: 'TestResource',
+                    url: 'http://test/res/:pk/',
+                    pkAttr: 'id',
+                    instanceClass: TestModel,
+                })
+                class TestResource extends Resource<ResourceInstance> {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.GET,
+                        paramDefaults: [],
+                        dataAttr: 'data',
+                        isList: false,
+                        isPrimitive: true
+                    })
+                    action1: ResourceActionMethod<any, any, string[]>;
+                }
+
+                let
+                    cbs = {
+                        success: (r: string) => {
+                            expect(r).toEqual('a');
+                        }
+                    },
+                    resource = instantiateResource(TestResource),
+                    testInstance = resource.create({
+                        id: 1,
+                    });
+
+                testInstance.$action1().$promise
+                    .then(cbs.success);
+
+                backend.expectOne({
+                    url: 'http://test/res/',
+                    method: ResourceActionHttpMethod.GET,
+                }).flush({data: 'a'});
+            })
+        )
+    );
 });
