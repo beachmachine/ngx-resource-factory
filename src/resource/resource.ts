@@ -8,11 +8,13 @@ import {
     HttpResponse
 } from "@angular/common/http";
 
-import { Observable } from "rxjs";
-import { Observer } from "rxjs/Observer";
-import { Subject } from "rxjs/Subject";
-import { of as observableOf } from "rxjs/observable/of";
-import { from as observableFrom } from "rxjs/observable/from";
+import {
+    Observable,
+    Observer,
+    Subject,
+    of as observableOf,
+    from as observableFrom,
+} from "rxjs";
 import { shareReplay as observableShareReplay } from "rxjs/operators";
 
 import { ResourceModel } from "./resource-model";

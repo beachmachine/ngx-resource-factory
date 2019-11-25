@@ -1662,7 +1662,7 @@ describe('Resource', () => {
                     }),
                     formData = new FormData();
 
-                formData.append('file', 'FILE_DATA', 'file.name');
+                formData.append('file', new Blob(['FILE_DATA']), 'file.name');
 
                 testResource.upload({}, formData).$promise
                     .then((result) => {
