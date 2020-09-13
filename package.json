@@ -7,6 +7,7 @@
   "typings": "module.d.ts",
   "scripts": {
     "test": "karma start ./karma/karma.conf.js",
+    "test-ci": "karma start ./karma/karma.conf.js --single-run",
     "build": "rm -Rf ./dist && mkdir ./dist && ngc && webpack --config webpack/webpack.build.js && cp package.json README.md LICENSE.md ./dist/ && touch ./dist/.gitkeep",
     "generatedocs": "compodoc src --tsconfig ./tsconfig.json --output ./docs --theme readthedocs --name 'ngx-resource-factory'"
   },
