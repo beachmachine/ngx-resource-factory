@@ -17,7 +17,7 @@ import { ResourceRegistry } from "./resource/resource-registry";
 })
 export class NgxResourceFactoryModule {
 
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<NgxResourceFactoryModule> {
         return {
             ngModule: NgxResourceFactoryModule,
             providers: [
