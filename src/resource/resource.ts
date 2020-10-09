@@ -135,9 +135,20 @@ export abstract class ResourceBase {
      * @param {Function} fn Function of the resource action.
      */
     registerActionMethod(name: string, fn: Function) {
-        // Initialize the action methods map, if not already existing.
-        if (!this.actionMethods) {
-            this.actionMethods = new Map<string, Function>();
+        // Initialize the action methods map, if not already existing on the current class.
+        if (!this.hasOwnProperty('actionMethods')) {
+            let
+                selfActionMethods = new Map<string, Function>();
+
+            // If the current class does not have defined action methods, but a class in the prototype chain
+            // does, then we need to copy the definition.
+            if (this.actionMethods) {
+                for (let name of Array.from(this.actionMethods.keys())) {
+                    selfActionMethods.set(name, this.actionMethods.get(name));
+                }
+            }
+
+            this.actionMethods = selfActionMethods;
         }
 
         this.actionMethods.set(name, fn);

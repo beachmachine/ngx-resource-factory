@@ -1287,6 +1287,47 @@ describe('Resource', () => {
         )
     );
 
+    it('Does have defined custom methods only',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecific1Resource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: false,
+                    })
+                    test1: ResourceActionMethod<any, any, TestModel>;
+                }
+                class TestSpecific2Resource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: false,
+                    })
+                    test2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    test1Resource = createResource(TestSpecific1Resource, {
+                        name: 'TestSpecific1Resource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    test2Resource = createResource(TestSpecific2Resource, {
+                        name: 'TestSpecific2Resource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    });
+
+                expect(test1Resource['test1']).toBeDefined();
+                expect(test1Resource['test2']).not.toBeDefined();
+
+                expect(test2Resource['test1']).not.toBeDefined();
+                expect(test2Resource['test2']).toBeDefined();
+            })
+        )
+    );
+
     it('Does execute HTTP `PUT` on custom `test` method',
         async(
             inject([HttpTestingController], (backend: HttpTestingController) => {

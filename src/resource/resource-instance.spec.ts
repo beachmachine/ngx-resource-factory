@@ -23,6 +23,7 @@ class TestModel extends ResourceInstance {
     title: string;
 }
 
+
 /**
  * Resource definition used for testing purposes.
  */
@@ -264,6 +265,55 @@ describe('ResourceInstance', () => {
                     url: 'http://test/res/1/',
                     method: ResourceActionHttpMethod.PUT,
                 }).flush({id: 1, test: 'a'});
+            })
+        )
+    );
+
+    it('Does have defined custom methods only',
+        async(
+            inject([HttpTestingController], (backend: HttpTestingController) => {
+                class TestSpecific1Resource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: false,
+                    })
+                    test1: ResourceActionMethod<any, any, TestModel>;
+                }
+                class TestSpecific2Resource extends TestResource {
+                    @ResourceAction({
+                        method: ResourceActionHttpMethod.PUT,
+                        isList: false,
+                    })
+                    test2: ResourceActionMethod<any, any, TestModel>;
+                }
+
+                let
+                    test1Resource = createResource(TestSpecific1Resource, {
+                        name: 'TestSpecific1Resource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    test2Resource = createResource(TestSpecific2Resource, {
+                        name: 'TestSpecific2Resource',
+                        url: 'http://test/res/:pk/',
+                        pkAttr: 'id',
+                        instanceClass: TestModel,
+                    }),
+                    test1Instance = test1Resource.create({
+                        id: 1,
+                        title: 'a',
+                    }),
+                    test2Instance = test2Resource.create({
+                        id: 1,
+                        title: 'a',
+                    });
+
+                expect(test1Instance['$test1']).toBeDefined();
+                expect(test1Instance['$test2']).not.toBeDefined();
+
+                expect(test2Instance['$test1']).not.toBeDefined();
+                expect(test2Instance['$test2']).toBeDefined();
             })
         )
     );
