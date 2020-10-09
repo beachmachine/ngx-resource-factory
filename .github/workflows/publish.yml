@@ -1,0 +1,38 @@
+name: Publish
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+
+    - name: Install dependencies
+      run: |
+        npm --no-git-tag-version version "${PACKAGE_VERSION/refs\/tags\/}"
+        npm install
+      env:
+        PACKAGE_VERSION: ${{ github.ref }}
+
+    - name: Build distribution package
+      run: |
+        npm run build
+
+    - name: Publish distribution package
+      working-directory: ./dist
+      run: |
+        npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+        npm publish . --tag "${NPM_TAG}" --access "${NPM_ACCESS}" ${NPM_DRY_RUN:+--dry-run}
+      env:
+        NPM_TAG: latest
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_ACCESS: ${{ secrets.NPM_ACCESS }}
+        NPM_DRY_RUN: ${{ secrets.NPM_DRY_RUN }}

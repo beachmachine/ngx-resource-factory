@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for Angular version 10
+### Changed
+- Minimal required Angular version bumped to 8.0
+- Fix for inheriting action methods
 
 ## [1.0.0] - 2019-11-27
 ### Added
