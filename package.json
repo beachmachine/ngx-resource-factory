@@ -1,6 +1,6 @@
 {
   "name": "ngx-resource-factory",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Interact with RESTful APIs with advanced features as caches and data stores.",
   "main": "bundle/ngx-resource-factory.min.js",
   "module": "module.js",
