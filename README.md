@@ -4,7 +4,7 @@ ngx-resource-factory is an Angular library that enables you to work with RESTful
 features include a resource store for holding changes on resource instances and related resource instances to commit
 them at once, and an advanced resource caching.
 
-**Note:** This library is for Angular 5.x and above!
+**Note:** This library is for Angular 9.x and above!
 
 
 ## In development
@@ -12,7 +12,7 @@ them at once, and an advanced resource caching.
 This library is currently in an early stage of development and is missing lots of features as well as a proper 
 documentation.
 
-You can find a pratical example for this library in [this blog-entry](https://nezhar.com/blog/consume-rest-api-in-angular-with-ngx-resource-factory/) by [@nezhar](https://github.com/nezhar)
+You can find a tutorial on using this library at [this blog entry](https://nezhar.com/blog/consume-rest-api-in-angular-with-ngx-resource-factory/) by [@nezhar](https://github.com/nezhar)
 
 
 ## Usage
