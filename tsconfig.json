@@ -33,6 +33,6 @@
   "angularCompilerOptions": {
     "strictMetadataEmit": true,
     "skipTemplateCodegen": true,
-    "enableIvy": false
+    "enableIvy": true
   }
 }
