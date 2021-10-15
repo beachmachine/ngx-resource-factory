@@ -281,6 +281,48 @@ export class UserResource extends Resource<User> {
 ```
 
 
+## Multiple URL params
+
+It is possible to add multiple params in the URL.
+
+```typescript
+@Injectable()
+@ResourceConfiguration({
+    name: 'UserResource',
+    url: environment.apiUrl + 'user/:pk/',
+    pkAttr: 'pk',
+    instanceClass: User,
+    stripTrailingSlashes: false,
+    paramDefaults: [
+        new ResourceParamDefaultFromPayload('key1', 'key1'),
+        new ResourceParamDefaultFromPayload('key2', 'key2'),
+    ],
+})
+export class UserResource extends Resource<User> {
+
+}
+```
+
+```typescript
+constructor(private userResource: UserResource) {
+    userResource.getOptions().paramDefaults.push(new ResourceParamDefault('key1', 'key1'));
+}
+```
+
+For custom action methods:
+
+```typescript
+@ResourceAction({
+    method: ResourceActionHttpMethod.POST,
+    paramDefaults: [
+        new ResourceParamDefaultFromPayload('key1', 'key1'),
+        new ResourceParamDefaultFromPayload('key2', 'key2'),
+    ],
+    isList: false,
+});
+```
+
+
 ## Handle responses
 
 Action methods give you three ways to handle responses. You can use the stub object returned
