@@ -1,6 +1,6 @@
-import { inject } from "@angular/core/testing";
+import { inject } from '@angular/core/testing';
 
-import { clean, cleanList, cleanObject } from "./resource-utils";
+import { clean, cleanList, cleanObject } from './resource-utils';
 
 
 describe('ResourceUtils', () => {

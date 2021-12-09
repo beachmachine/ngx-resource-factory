@@ -1,18 +1,18 @@
-import { Injectable, Type } from "@angular/core";
-import { async, inject, TestBed } from "@angular/core/testing";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { Injectable, Type } from '@angular/core';
+import { inject, TestBed, waitForAsync } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { ResourceMemoryCache } from "./resource-memory-cache";
-import { Resource } from "../resource/resource";
-import { ResourceInstance } from "../resource/resource-instance";
-import { ResourceConfiguration } from "../resource/resource-configuration";
-import { ResourceConfigurationOptions } from "../resource/resource-configuration-options";
-import { ResourceActionHttpMethod } from "../resource/resource-action-http-method";
-import { ResourceActionMethod } from "../resource/resource-action-method";
-import { ResourceAction } from "../resource/resource-action";
-import { ResourceRegistry } from "../resource/resource-registry";
-import { NgxResourceFactoryModule } from "../module";
+import { ResourceMemoryCache } from './resource-memory-cache';
+import { Resource } from '../resource/resource';
+import { ResourceInstance } from '../resource/resource-instance';
+import { ResourceConfiguration } from '../resource/resource-configuration';
+import { ResourceConfigurationOptions } from '../resource/resource-configuration-options';
+import { ResourceActionHttpMethod } from '../resource/resource-action-http-method';
+import { ResourceActionMethod } from '../resource/resource-action-method';
+import { ResourceAction } from '../resource/resource-action';
+import { ResourceRegistry } from '../resource/resource-registry';
+import { NgxResourceFactoryModule } from '../module';
 
 
 /**
@@ -68,7 +68,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does execute one call on multiple equal immediate cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -89,7 +89,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does execute one call on multiple equal delayed cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -125,7 +125,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does execute multiple calls on multiple different cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -154,7 +154,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does execute multiple calls on multiple equal non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -186,7 +186,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not re-execute if cache TTL is not exceeded',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -218,7 +218,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does re-execute if cache TTL is exceeded',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -250,7 +250,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does fetch data on multiple equal immediate cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -306,7 +306,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does fetch data on multiple equal delayed cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -372,7 +372,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does pre-populate data with `urlAttr` set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -403,7 +403,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does pre-populate data with `urlAttr` set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -442,7 +442,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with missing `urlAttr` set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -486,7 +486,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with missing `urlAttr` set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -538,7 +538,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with `urlAttr` not set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -585,7 +585,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with `urlAttr` not set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -640,7 +640,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does pre-populate data with `urlAttr` and `dataAttr` set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -676,7 +676,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does pre-populate data with `urlAttr` and `dataAttr` set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -720,7 +720,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with missing `urlAttr` and `dataAttr` set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -767,7 +767,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with missing `urlAttr` and `dataAttr` set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -822,7 +822,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with `urlAttr` not set and `dataAttr` set on cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -874,7 +874,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does not pre-populate data with `urlAttr` not set and `dataAttr` set on non-cacheable actions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -934,7 +934,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does handle errors immediate cacheable actions using observable',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -987,7 +987,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does handle errors delayed cacheable actions using observable',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -1036,7 +1036,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does handle errors immediate cacheable actions using promise',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {
@@ -1087,7 +1087,7 @@ describe('ResourceMemoryCache', () => {
     );
 
     it('Does handle errors delayed cacheable actions using promise',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 let
                     testResource = createResource(TestResource, {

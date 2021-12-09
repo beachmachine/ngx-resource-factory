@@ -1,6 +1,6 @@
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse } from '@angular/common/http';
 
-import { ResourceModel } from "./resource-model";
+import { ResourceModel } from './resource-model';
 
 
 /**

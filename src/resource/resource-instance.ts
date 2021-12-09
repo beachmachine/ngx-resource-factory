@@ -1,5 +1,5 @@
-import { ResourceModel } from "./resource-model";
-import { clone } from "../utils/resource-utils";
+import { ResourceModel } from './resource-model';
+import { clone } from '../utils/resource-utils';
 
 
 /**
@@ -37,7 +37,7 @@ export class ResourceInstance {
      * @returns {boolean}
      */
     public isPhantom(): boolean {
-        let
+        const
             self = <ResourceModel<any>>this,
             resource = self.$resource,
             phantomGenerator = resource ? resource.getPhantomGenerator() : null,

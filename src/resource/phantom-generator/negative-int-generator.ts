@@ -1,5 +1,5 @@
-import { PhantomGenerator } from "./phantom-generator";
-import { ResourceInstance } from "../resource-instance";
+import { PhantomGenerator } from './phantom-generator';
+import { ResourceInstance } from '../resource-instance';
 
 
 /**
@@ -8,13 +8,12 @@ import { ResourceInstance } from "../resource-instance";
 export class NegativeIntGenerator implements PhantomGenerator {
     protected lastGeneratedPk: number = 0;
 
-    generate(instance: ResourceInstance): string {
+    generate(_instance: ResourceInstance): string {
         return '' + --this.lastGeneratedPk;
     }
 
     is(pk: string): boolean {
-        let
-            intPk = parseInt(pk);
+        const intPk = parseInt(pk, 10);
 
         return intPk < 0 && intPk >= this.lastGeneratedPk;
     }

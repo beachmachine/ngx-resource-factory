@@ -1,58 +1,46 @@
-import { UrlBuilder } from "./url-builder";
-import { ResourceActionOptions } from "../resource-action-options";
+import { UrlBuilder } from './url-builder';
+import { ResourceActionOptions } from '../resource-action-options';
 
 
 export class DefaultUrlBuilder implements UrlBuilder {
 
+    // tslint:disable-next-line:cognitive-complexity
     buildUrl(query: Object, payload: Object, options: ResourceActionOptions): string {
         query = Object.assign({}, query);
         payload = Object.assign({}, payload);
 
-        let
-            urlSuffix = options.urlSuffix || '',
-            url = new URL(urlSuffix ? options.url + urlSuffix : options.url, location && location.href || null),
-            urlRegex = new RegExp('(:)(\\w+)(\\W|$)', 'g'),
-            pathname = url.pathname || '',
-            search = url.search || '',
-            paramDefaults = options.paramDefaults || [],
-            paramDefaultKeys = paramDefaults.map(v => v.key);
+        const urlSuffix = options.urlSuffix || '';
+        const url = new URL(urlSuffix ? options.url + urlSuffix : options.url, location && location.href || null);
+        const urlRegex = new RegExp('(:)(\\w+)(\\W|$)', 'g');
+        let pathname = url.pathname || '';
+        let search = url.search || '';
+        const paramDefaults = options.paramDefaults || [];
+        const paramDefaultKeys = paramDefaults.map(v => v.key);
 
         /*
          * Build the pathname with the query and the param defaults
          */
-        pathname = pathname.replace(urlRegex, function (match, keyPrefix, key, keySuffix) {
+        pathname = pathname.replace(urlRegex, function (_match, _, key, keySuffix) {
             // If the url param is part of the query object
             if (query.hasOwnProperty(key)) {
-                let
-                    paramValue = query[key] || '';
+                const paramValue = query[key] || '';
 
                 delete query[key];
                 return encodeURIComponent(paramValue) + keySuffix;
-            }
-
-            // Else check if we have a default for the url param
-            else {
-                let
-                    paramDefaultIndex = paramDefaultKeys.indexOf(key);
+            } else { // Else check if we have a default for the url param
+                const paramDefaultIndex = paramDefaultKeys.indexOf(key);
 
                 // If we found a default param, put its value on the URL
                 if (paramDefaultIndex !== -1) {
-                    let
-                        paramDefaultValue = options.paramDefaults[paramDefaultIndex].getValue(query, payload, options);
+                    const paramDefaultValue = options.paramDefaults[paramDefaultIndex].getValue(query, payload, options);
 
                     // If the param default getter returns a value that can be put in the url, put it in the url
                     if (paramDefaultValue !== undefined && paramDefaultValue !== null) {
                         return encodeURIComponent(options.paramDefaults[paramDefaultIndex].getValue(query, payload, options)) + keySuffix;
-                    }
-
-                    // Else just remove the url param from the url
-                    else {
+                    } else { // Else just remove the url param from the url
                         return '';
                     }
-                }
-
-                // Else just remove the url param from the url
-                else {
+                } else { // Else just remove the url param from the url
                     return '';
                 }
             }
@@ -62,18 +50,14 @@ export class DefaultUrlBuilder implements UrlBuilder {
          * Build the search params
          */
         search = (search ? search.substring(1) + '&' : '') + Object.keys(query).map(function (key) {
-            let
-                value = query[key];
+            const value = query[key];
 
             // If the given value is an array, add each value with the given key
             if (Array.isArray(value)) {
                 return value.map(function (innerValue) {
                     return key + '=' + encodeURIComponent(innerValue);
                 }).join('&');
-            }
-
-            // Else we just return the key with its value
-            else {
+            } else { // Else we just return the key with its value
                 return key + '=' + encodeURIComponent(query[key]);
             }
         }).join('&');

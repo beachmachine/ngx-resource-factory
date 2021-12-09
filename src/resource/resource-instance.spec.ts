@@ -1,17 +1,17 @@
-import { Injectable, Type } from "@angular/core";
-import { async, inject, TestBed } from "@angular/core/testing";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { Injectable, Type } from '@angular/core';
+import { inject, TestBed, waitForAsync } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Resource } from "./resource";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceConfiguration } from "./resource-configuration";
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
-import { ResourceAction } from "./resource-action";
-import { ResourceActionMethod } from "./resource-action-method";
-import { ResourceRegistry } from "./resource-registry";
-import { NgxResourceFactoryModule } from "../module";
+import { Resource } from './resource';
+import { ResourceInstance } from './resource-instance';
+import { ResourceConfiguration } from './resource-configuration';
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
+import { ResourceAction } from './resource-action';
+import { ResourceActionMethod } from './resource-action-method';
+import { ResourceRegistry } from './resource-registry';
+import { NgxResourceFactoryModule } from '../module';
 
 
 /**
@@ -43,7 +43,7 @@ describe('ResourceInstance', () => {
      * @returns {T}
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
-        let
+        const
             registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
@@ -69,7 +69,7 @@ describe('ResourceInstance', () => {
 
     it('Does recognize phantom instance',
         inject([], () => {
-            let
+            const
                 testResource = createResource(TestResource, {
                     name: 'TestResource',
                     url: 'http://test/:pk/',
@@ -85,9 +85,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does recognize non-phantom instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/:pk/',
@@ -112,9 +112,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `GET` on `$get` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -137,9 +137,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `GET` on `$query` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -162,9 +162,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `POST` on `$save` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -187,9 +187,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `PATCH` on `$update` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -212,9 +212,9 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `DELETE` on `$remove` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -237,7 +237,7 @@ describe('ResourceInstance', () => {
     );
 
     it('Does execute HTTP `PUT` on custom `$test` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -247,7 +247,7 @@ describe('ResourceInstance', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -270,8 +270,8 @@ describe('ResourceInstance', () => {
     );
 
     it('Does have defined custom methods only',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+        waitForAsync(
+            inject([], () => {
                 class TestSpecific1Resource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.PUT,
@@ -287,7 +287,7 @@ describe('ResourceInstance', () => {
                     test2: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     test1Resource = createResource(TestSpecific1Resource, {
                         name: 'TestSpecific1Resource',
                         url: 'http://test/res/:pk/',

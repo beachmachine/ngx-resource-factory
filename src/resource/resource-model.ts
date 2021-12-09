@@ -1,10 +1,10 @@
-import { HttpRequest, HttpResponse } from "@angular/common/http";
+import { HttpRequest, HttpResponse } from '@angular/common/http';
 
-import { Observable } from "rxjs";
+import { Observable } from 'rxjs';
 
-import { ResourceModelActionMethod } from "./resource-action-method";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceBase } from "./resource";
+import { ResourceModelActionMethod } from './resource-action-method';
+import { ResourceInstance } from './resource-instance';
+import { ResourceBase } from './resource';
 
 
 export type ResourceModelMethods<T> = {

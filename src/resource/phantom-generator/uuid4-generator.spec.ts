@@ -1,8 +1,8 @@
-import { Injectable } from "@angular/core";
-import { inject } from "@angular/core/testing";
+import { Injectable } from '@angular/core';
+import { inject } from '@angular/core/testing';
 
-import { Uuid4Generator } from "./uuid4-generator";
-import { ResourceInstance } from "../resource-instance";
+import { Uuid4Generator } from './uuid4-generator';
+import { ResourceInstance } from '../resource-instance';
 
 
 /**

@@ -1,39 +1,22 @@
-import { Type, Injectable } from "@angular/core";
-import {
-    HttpClient,
-    HttpErrorResponse,
-    HttpEvent,
-    HttpEventType,
-    HttpRequest,
-    HttpResponse
-} from "@angular/common/http";
+import { Injectable, Type } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpEvent, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
 
-import {
-    Observable,
-    Observer,
-    Subject,
-    of as observableOf,
-    from as observableFrom,
-} from "rxjs";
-import { shareReplay as observableShareReplay } from "rxjs/operators";
+import { from as observableFrom, Observable, Observer, of as observableOf, Subject, } from 'rxjs';
+import { shareReplay as observableShareReplay } from 'rxjs/operators';
 
-import { ResourceModel } from "./resource-model";
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceActionOptions } from "./resource-action-options";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceAction } from "./resource-action";
-import { ResourceActionMethod } from "./resource-action-method";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
-import { PhantomGenerator } from "./phantom-generator/phantom-generator";
-import { ResourceRegistry } from "./resource-registry";
-import { ResourceCache } from "../cache/resource-cache";
-import { ResourceNoopCache } from "../cache/resource-noop-cache";
-import {
-    PrepopulatedResourceCacheItem,
-    ResourceCacheItem,
-    ResourceCacheItemMarker
-} from "../cache/resource-cache-item";
-import { clean, isPromiseLike } from "../utils/resource-utils";
+import { ResourceModel } from './resource-model';
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceActionOptions } from './resource-action-options';
+import { ResourceInstance } from './resource-instance';
+import { ResourceAction } from './resource-action';
+import { ResourceActionMethod } from './resource-action-method';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
+import { PhantomGenerator } from './phantom-generator/phantom-generator';
+import { ResourceRegistry } from './resource-registry';
+import { ResourceCache } from '../cache/resource-cache';
+import { ResourceNoopCache } from '../cache/resource-noop-cache';
+import { PrepopulatedResourceCacheItem, ResourceCacheItem, ResourceCacheItemMarker } from '../cache/resource-cache-item';
+import { clean, isPromiseLike } from '../utils/resource-utils';
 
 
 /**
@@ -91,7 +74,7 @@ export abstract class ResourceBase {
      */
     @NeedsOptions()
     bind<T extends Object>(obj: T): ResourceModel<T> {
-        let
+        const
             /*
              * Options for the resource
              */
@@ -137,13 +120,13 @@ export abstract class ResourceBase {
     registerActionMethod(name: string, fn: Function) {
         // Initialize the action methods map, if not already existing on the current class.
         if (!this.hasOwnProperty('actionMethods')) {
-            let
+            const
                 selfActionMethods = new Map<string, Function>();
 
             // If the current class does not have defined action methods, but a class in the prototype chain
             // does, then we need to copy the definition.
             if (this.actionMethods) {
-                for (let name of Array.from(this.actionMethods.keys())) {
+                for (const name of Array.from(this.actionMethods.keys())) {
                     selfActionMethods.set(name, this.actionMethods.get(name));
                 }
             }
@@ -160,7 +143,7 @@ export abstract class ResourceBase {
      */
     @NeedsOptions()
     getPhantomGenerator(): PhantomGenerator {
-        let
+        const
             options = this.getOptions(),
             phantomGeneratorClass = options.phantomGeneratorClass;
 
@@ -189,7 +172,7 @@ export abstract class ResourceBase {
      */
     @NeedsOptions()
     getCache(): ResourceCache {
-        let
+        const
             options = this.getOptions(),
             cacheClass = options.cacheClass;
 
@@ -214,9 +197,8 @@ export abstract class ResourceBase {
     protected makeResourceModel(payload: object, instanceClass?: Type<ResourceInstance>): ResourceModelObject {
         payload = payload || {};
 
-        let
-            options = this.getOptions(),
-            obj = new (instanceClass || options.instanceClass)();
+        const options = this.getOptions();
+        let obj = new (instanceClass || options.instanceClass)();
 
         obj = Object.assign(obj, payload);
         obj = this.bind(obj);
@@ -233,10 +215,10 @@ export abstract class ResourceBase {
     protected makeResourceModelList(payload: any[]): ResourceModelList {
         payload = payload || [];
 
-        let
+        const
             objs = [];
 
-        for (let obj of payload) {
+        for (const obj of payload) {
             objs.push(this.makeResourceModel(obj));
         }
 
@@ -256,55 +238,57 @@ export abstract class ResourceBase {
      * @returns {ResourceModel}
      */
     protected executeResourceAction(query: any, payload: any, success: Function, error: Function, actionOptions: ResourceActionOptions): ResourceModelResult {
-        let
-            /*
-             * Model class to instantiate for the resource action.
-             */
-            instanceClass = actionOptions.instanceClass,
+
+        /*
+         * Model class to instantiate for the resource action.
+         */
+        const instanceClass = actionOptions.instanceClass;
 
             /*
              * Object that contains the actual result. Will be populated with the response data as soon as the response
              * is complete.
              */
-            resultObject = <ResourceModelResult>(actionOptions.isList ? this.makeResourceModelList([]) : this.makeResourceModel({}, instanceClass)),
+        const resultObject = <ResourceModelResult>(actionOptions.isList ?
+                this.makeResourceModelList([]) :
+                this.makeResourceModel({}, instanceClass));
 
             /*
              * The request method verb. We need to explicitly ensure string type here so we can use it in the
              * constructor of `HttpRequest`.
              */
-            method = <string>actionOptions.method,
+            const method = <string>actionOptions.method;
 
             /*
              * The URL for the request from built from the action configuration, the query and the payload.
              */
-            url = (new actionOptions.urlBuilderClass()).buildUrl(query, payload, actionOptions),
+            const url = (new actionOptions.urlBuilderClass()).buildUrl(query, payload, actionOptions);
 
             /*
              * Build the http request headers from the action configuration, the query and the payload.
              */
-            headers = (new actionOptions.headerBuilderClass()).buildHeaders(query, payload, actionOptions),
+            const headers = (new actionOptions.headerBuilderClass()).buildHeaders(query, payload, actionOptions);
 
             /*
              * Use the `dump` method on the payload object if it is an `ResourceInstance` object to get the
              * data representation that should be sent to the server. If the given payload is not a
              * `ResourceInstance` object, then we give it directly to the `clean` method.
              */
-            cleanedPayload = clean(payload instanceof ResourceInstance ? payload.dump() : payload, actionOptions.privatePattern),
+            const cleanedPayload = clean(payload instanceof ResourceInstance ? payload.dump() : payload, actionOptions.privatePattern);
 
             /*
              * The request object for angular's `HttpClient` service.
              */
-            request = new HttpRequest(method, url, cleanedPayload, {
+            const request = new HttpRequest(method, url, cleanedPayload, {
                 reportProgress: actionOptions.reportProgress,
                 responseType: actionOptions.responseType,
                 withCredentials: actionOptions.withCredentials,
                 headers: headers,
-            }),
+            });
 
             /*
              * The action response object.
              */
-            actionModel = this.executeResourceActionRequest(resultObject, request, actionOptions);
+            const actionModel = this.executeResourceActionRequest(resultObject, request, actionOptions);
 
         // Attach to the action model observable to call the given `success` and `error` callbacks.
         actionModel.$observable
@@ -329,44 +313,44 @@ export abstract class ResourceBase {
      */
     @NeedsOptions()
     protected executeResourceActionRequest(obj: ResourceModelResult, request: HttpRequest<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
-        let
-            self = this,
+
+            const self = this;
 
             /*
              * Indicates whether the response object is resolved.
              */
-            resolved = false,
+            const resolved = false;
 
             /*
              * Cache instance used for the request.
              */
-            cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
+            const cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache();
 
             /*
              * TTL for cache items in seconds.
              */
-            cacheTtl = this.getOptions().cacheTtl,
+            const cacheTtl = this.getOptions().cacheTtl;
 
             /*
              * The actual `HTTPClient` observable used for the request.
              */
-            httpObservable = this.http.request(request),
+            const httpObservable = this.http.request(request);
 
             /*
              * The subject used to publish http events.
              */
-            httpEventSubject = new Subject<HttpEvent<ResourceInstance>>(),
+            const httpEventSubject = new Subject<HttpEvent<ResourceInstance>>();
 
             /*
              * The observable created from the http event subject.
              */
-            httpEventObservable = observableFrom(httpEventSubject),
+            const httpEventObservable = observableFrom(httpEventSubject);
 
             /*
              * Hot observable that wraps the `HTTPClient` observable.
              */
-            observable = Observable.create((observer: Observer<ResourceModelResult>) => {
-                let
+           const observable = Observable.create((observer: Observer<ResourceModelResult>) => {
+                const
                     /*
                      * Helper function that starts the actual HTTP request/response cycle by
                      * subscribing to the `HTTPClient` observable.
@@ -381,12 +365,12 @@ export abstract class ResourceBase {
                             /*
                              * Cache promise reject function.
                              */
-                            cacheReject: Function = null,
+                            cacheReject: Function = null;
 
                             /*
                              * Cache promise.
                              */
-                            cachePromise = new Promise((resolve, reject) => {
+                            const cachePromise = new Promise((resolve, reject) => {
                                 cacheResolve = resolve;
                                 cacheReject = reject;
                             });
@@ -421,15 +405,13 @@ export abstract class ResourceBase {
                                         let
                                             cachedObj = new ResourceCacheItem(event, self, cacheTtl);
 
-                                        resolved = true;
-
                                         /*
                                          * If `invalidateCache` is set to `true` than we invalidate the
                                          * cached data on the cache instance.
                                          */
                                         if (actionOptions.invalidateCache) {
                                             // Invalidate cache of all dependent caches (including self)
-                                            for (let resource of self.registry.getDependentResources(self)) {
+                                            for (const resource of self.registry.getDependentResources(self)) {
                                                 resource.getCache().invalidate();
                                             }
                                         }
@@ -474,10 +456,8 @@ export abstract class ResourceBase {
                      * Helper function that processes the response from the cache.
                      */
                     progressWithCachedItem = (cachedItem) => {
-                        let
+                        const
                             cacheObjResponse = cachedItem.response;
-
-                        resolved = true;
 
                         // Process the response
                         obj = self.contributeResourceModelRequestResponseProperties(obj, request, cacheObjResponse);
@@ -493,7 +473,7 @@ export abstract class ResourceBase {
                  * the observer.
                  */
                 if (cache.has(request)) {
-                    let
+                    const
                         cacheObj = cache.get(request);
 
                     /*
@@ -504,9 +484,9 @@ export abstract class ResourceBase {
                      */
                     if (isPromiseLike(cacheObj)) {
                         (<Promise<ResourceCacheItem>>cacheObj)
-                        /*
-                         * Promise resolved, so we can progress with the cached result.
-                         */
+                            /*
+                             * Promise resolved, so we can progress with the cached result.
+                             */
                             .then((cacheObj) => {
                                 progressWithCachedItem(cacheObj);
                             })
@@ -514,7 +494,7 @@ export abstract class ResourceBase {
                             /*
                              * Promise rejected, so wen need to re-execute the HTTP call.
                              */
-                            .catch((er) => {
+                            .catch((_er) => {
                                 progressWithHttpObservable(httpObservable);
                             });
                     }
@@ -562,7 +542,7 @@ export abstract class ResourceBase {
                     return observableOf(obj).toPromise();
                 }
 
-                // Else we return a promise of our subject, so the promise resolves
+                    // Else we return a promise of our subject, so the promise resolves
                 // as soon as the subject is completed.
                 else {
                     return observable.toPromise();
@@ -586,7 +566,7 @@ export abstract class ResourceBase {
      * @returns {ResourceModelResult}
      */
     protected contributeResourceModelProperties(obj: any): ResourceModelResult {
-        let
+        const
             self = this,
             contributedObject = <ResourceModelResult>obj;
 
@@ -596,42 +576,49 @@ export abstract class ResourceBase {
         Object.defineProperty(contributedObject, '$resolved', {
             writable: false,
             value: true,
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$total', {
             writable: false,
             value: null,
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$observable', {
             get: () => observableOf(contributedObject),
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$promise', {
             get: () => obj.$observable.toPromise(),
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$resource', {
             writable: false,
             value: self,
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$request', {
             writable: false,
             value: null,
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$response', {
             writable: false,
             value: null,
+            configurable: true
         });
 
         /*
          * Now we go on and contribute the resource action instance methods.
          */
-        for (let name of Array.from(this.actionMethods.keys())) {
-            let
+        for (const name of Array.from(this.actionMethods.keys())) {
+            const
                 fn = this.actionMethods.get(name);
 
             contributedObject['$' + name] = function (...args: any[]) {
-                let
-                    query = null,
-                    success = null,
-                    error = null;
+
+                let query = null;
+                let success = null;
+                let error = null;
 
                 /*
                  * Handle method signature where the method can be called as follows:
@@ -694,19 +681,21 @@ export abstract class ResourceBase {
      * @returns {ResourceModelResult}
      */
     protected contributeResourceModelRequestResponseProperties(obj: any, request?: HttpRequest<ResourceInstance>, response?: HttpResponse<ResourceInstance>): ResourceModelResult {
-        let
+        const
             contributedObject = <ResourceModelResult>obj;
 
         /*
          * Define the request and the response as properties on the object.
          */
         Object.defineProperty(contributedObject, '$request', {
-            writable: false,
+            writable: true,
             value: request || null,
+            configurable: true
         });
         Object.defineProperty(contributedObject, '$response', {
             writable: false,
             value: response || null,
+            configurable: true
         });
 
         return contributedObject;
@@ -719,12 +708,13 @@ export abstract class ResourceBase {
      * @param {number} total The value of the `totalAttr`
      */
     protected contributeResourceModelListProperties(obj: any, total?: number): ResourceModelResult {
-        let
+        const
             contributedObject = <ResourceModelResult>obj;
 
         Object.defineProperty(contributedObject, '$total', {
             writable: false,
             value: total,
+            configurable: true
         });
 
         return contributedObject;
@@ -747,12 +737,7 @@ export abstract class ResourceBase {
          */
         if (actionOptions.responseType === 'json' && actionOptions.isList) {
             result = this.processListResponse(result, request, response, actionOptions);
-        }
-
-        /*
-         * In case we expect a JSON object, process the object result and notify the observer.
-         */
-        else if (actionOptions.responseType === 'json' && !actionOptions.isList) {
+        } else if (actionOptions.responseType === 'json' && !actionOptions.isList) { // In case we expect a JSON object, process the object result and notify the observer.
             result = this.processObjectResponse(result, request, response, actionOptions);
         }
 
@@ -769,20 +754,20 @@ export abstract class ResourceBase {
      * @returns {ResourceModelResult}
      */
     protected processListResponse(result: ResourceModelResult, request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
-        let
-            self = this,
-            instanceClass = actionOptions.instanceClass,
-            isPrimitive = actionOptions.isPrimitive,
-            cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache(),
-            cacheTtl = this.getOptions().cacheTtl,
-            body = response.body,
-            dataAttr = actionOptions.dataAttr,
-            useDataAttr = dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
-            totalAttr = actionOptions.totalAttr,
-            useTotalAttr = useDataAttr && totalAttr && body && !isNaN(parseInt(body[totalAttr])),
-            total = useTotalAttr ? parseInt(body[totalAttr]) : null,
-            urlAttr = actionOptions.urlAttr,
-            responseList = (useDataAttr ? body[dataAttr] : body) || null;
+
+        const self = this;
+        const instanceClass = actionOptions.instanceClass;
+        const isPrimitive = actionOptions.isPrimitive;
+        const cache = actionOptions.useCache ? this.getCache() : new ResourceNoopCache();
+        const cacheTtl = this.getOptions().cacheTtl;
+        const body = response.body;
+        const dataAttr = actionOptions.dataAttr;
+        const useDataAttr = dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED];
+        const totalAttr = actionOptions.totalAttr;
+        const useTotalAttr = useDataAttr && totalAttr && body && !isNaN(parseInt(body[totalAttr], 10));
+        const total = useTotalAttr ? parseInt(body[totalAttr], 10) : null;
+        const urlAttr = actionOptions.urlAttr;
+        const responseList = (useDataAttr ? body[dataAttr] : body) || null;
 
         // If the response does not contain a JSON list, we log an error and add nothing to the result array.
         if (responseList !== null && (typeof responseList !== 'object' || responseList.constructor !== Array)) {
@@ -797,15 +782,13 @@ export abstract class ResourceBase {
 
         // Now we add the response items, contributed with the resource model properties, to the result object.
         if (responseList !== null) {
-            for (let item of responseList) {
-                let
-                    prepopulateCache = urlAttr && item && item[urlAttr] && !response[ResourceCacheItemMarker.CACHED],
-                    obj;
+            for (const item of responseList) {
+                const prepopulateCache = urlAttr && item && item[urlAttr] && !response[ResourceCacheItemMarker.CACHED];
+                let obj;
 
                 if (isPrimitive) {
                     obj = item;
-                }
-                else {
+                } else {
                     obj = this.makeResourceModel(item, instanceClass);
                     obj.load(item);
                 }
@@ -814,7 +797,7 @@ export abstract class ResourceBase {
 
                 // Populate the cache with the raw item if we have an `urlAttr`
                 if (prepopulateCache) {
-                    let
+                    const
                         fakeRequest = request.clone({
                             body: null,
                             method: ResourceActionHttpMethod.GET,
@@ -847,8 +830,8 @@ export abstract class ResourceBase {
      * @param {ResourceActionOptions} actionOptions The resource action configuration.
      * @returns {ResourceModelResult}
      */
-    protected processObjectResponse(result: ResourceModelResult, request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
-        let
+    protected processObjectResponse(result: ResourceModelResult, _request: HttpRequest<any>, response: HttpResponse<any>, actionOptions: ResourceActionOptions): ResourceModelResult {
+        const
             body = response.body,
             useDataAttr = actionOptions.dataAttr && body && !response[ResourceCacheItemMarker.PREPOPULATED],
             dataAttr = actionOptions.dataAttr,
@@ -866,8 +849,7 @@ export abstract class ResourceBase {
         // On responses with data we use the `load` method of the result object to transform the data.
         if (!isPrimitive && responseObject !== null) {
             result = <ResourceModelResult>result.load(responseObject);
-        }
-        else {
+        } else {
             result = responseObject;
         }
 
@@ -954,9 +936,9 @@ export class ResourceUnexpectedResponseError extends Error {
  * @constructor
  */
 export function NeedsOptions() {
-    let
-        decorator = function (target: ResourceBase, key: string, descriptor: PropertyDescriptor) {
-            let
+    const
+        decorator = function (_target: ResourceBase, _: string, descriptor: PropertyDescriptor) {
+            const
                 originalMethod = descriptor.value;
 
             descriptor.value = function (...args: any[]) {
