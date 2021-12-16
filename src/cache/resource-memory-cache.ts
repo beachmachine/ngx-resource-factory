@@ -1,7 +1,7 @@
-import { HttpRequest } from "@angular/common/http";
+import { HttpRequest } from '@angular/common/http';
 
-import { ResourceCache } from "./resource-cache";
-import { ResourceCacheItem, ResourceCacheItemPromisable } from "./resource-cache-item";
+import { ResourceCache } from './resource-cache';
+import { ResourceCacheItem, ResourceCacheItemPromisable } from './resource-cache-item';
 
 
 /**

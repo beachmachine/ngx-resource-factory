@@ -1,18 +1,18 @@
-import { Injectable, Type } from "@angular/core";
-import { async, inject, TestBed } from "@angular/core/testing";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { Injectable, Type } from '@angular/core';
+import { inject, TestBed, waitForAsync  } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Resource, ResourceBase } from "./resource";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceConfiguration } from "./resource-configuration";
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
-import { ResourceRegistry } from "./resource-registry";
-import { NgxResourceFactoryModule } from "../module";
-import { ResourceActionMethod } from "./resource-action-method";
-import { ResourceAction } from "./resource-action";
-import { ResourceModel } from "./resource-model";
+import { Resource, ResourceBase } from './resource';
+import { ResourceInstance } from './resource-instance';
+import { ResourceConfiguration } from './resource-configuration';
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
+import { ResourceRegistry } from './resource-registry';
+import { NgxResourceFactoryModule } from '../module';
+import { ResourceActionMethod } from './resource-action-method';
+import { ResourceAction } from './resource-action';
+import { ResourceModel } from './resource-model';
 
 
 /**
@@ -41,7 +41,7 @@ describe('ResourceAction', () => {
      * @returns {T}
      */
     function instantiateResource<T extends ResourceBase>(cls: Type<T>): T {
-        let
+        const
             registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
@@ -78,7 +78,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does have all configured action methods on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -103,7 +103,7 @@ describe('ResourceAction', () => {
                     action2: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     resource = instantiateResource(TestResource);
 
                 resource.action1();
@@ -122,7 +122,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does have all configured action methods on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -152,7 +152,7 @@ describe('ResourceAction', () => {
                     action2: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     resource = instantiateResource(TestResource),
                     instance = resource.create();
 
@@ -172,7 +172,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does have all inherited configured action methods on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -213,7 +213,7 @@ describe('ResourceAction', () => {
                     action3: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     resource = instantiateResource(ChildTestResource);
 
                 resource.action1();
@@ -238,7 +238,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does have all inherited configured action methods on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -284,7 +284,7 @@ describe('ResourceAction', () => {
                     action3: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     resource = instantiateResource(ChildTestResource),
                     instance = resource.create();
 
@@ -310,9 +310,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query`, `payload`, `successCb` and `errorCb` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -347,9 +347,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query`, `payload` and `successCb` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -384,9 +384,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query`, `successCb` and `errorCb` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -417,9 +417,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `successCb` and `errorCb` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -450,9 +450,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query` and `successCb` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -483,9 +483,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query` and `payload` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -520,9 +520,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query` on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -553,9 +553,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take nothing on resource',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -586,9 +586,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query`, `successCb` and `errorCb` on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -623,9 +623,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query`, and `successCb` on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -660,9 +660,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `successCb` and `errorCb` on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -697,9 +697,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `successCb` on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -734,9 +734,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take `query` on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -771,9 +771,9 @@ describe('ResourceAction', () => {
     );
 
     it('Does take nothing on instance',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     cbs = {
                         success: () => {
                         },
@@ -808,7 +808,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does get primitive data lists if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -828,7 +828,7 @@ describe('ResourceAction', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string[]) => {
                             expect(r[0]).toEqual('a');
@@ -853,7 +853,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does get primitive data lists if `dataAttr` set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -873,7 +873,7 @@ describe('ResourceAction', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string[]) => {
                             expect(r[0]).toEqual('a');
@@ -898,7 +898,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does get primitive data if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -918,7 +918,7 @@ describe('ResourceAction', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string) => {
                             expect(r).toEqual('a');
@@ -941,7 +941,7 @@ describe('ResourceAction', () => {
     );
 
     it('Does get primitive data if `dataAttr` set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -961,7 +961,7 @@ describe('ResourceAction', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string) => {
                             expect(r).toEqual('a');

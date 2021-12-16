@@ -24,12 +24,12 @@
   "author": "Andreas Stocker <andreas@stocker.co.it>",
   "license": "MIT",
   "devDependencies": {
-    "@angular/common": "^11.0.0",
-    "@angular/compiler": "^11.0.0",
-    "@angular/compiler-cli": "^11.0.0",
-    "@angular/core": "^11.0.0",
-    "@angular/platform-browser": "^11.0.0",
-    "@angular/platform-browser-dynamic": "^11.0.0",
+    "@angular/common": "^13.0.3",
+    "@angular/compiler": "^13.0.3",
+    "@angular/compiler-cli": "^13.0.3",
+    "@angular/core": "^13.0.3",
+    "@angular/platform-browser": "^13.0.3",
+    "@angular/platform-browser-dynamic": "^13.0.3",
     "@compodoc/compodoc": "^1.1.14",
     "@types/jasmine": "^2.5.53",
     "@types/jasminewd2": "^2.0.2",
@@ -58,15 +58,15 @@
     "tslint": "^5.7.0",
     "tslint-loader": "^3.6.0",
     "typedoc": "^0.9.0",
-    "typescript": "^4.0.2",
+    "typescript": "^4.4.4",
     "uglifyjs": "^2.4.11",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "webpack": "^3.11.0",
     "zone.js": "^0.11.3"
   },
   "peerDependencies": {
-    "@angular/common": ">=8.0.0",
-    "@angular/core": ">=8.0.0",
+    "@angular/common": ">=12.0.0",
+    "@angular/core": ">=12.0.0",
     "lodash": "^4.17.0",
     "rxjs": ">=6.0.0"
   }

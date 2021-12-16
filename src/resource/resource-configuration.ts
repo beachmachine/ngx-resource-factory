@@ -1,11 +1,11 @@
 import { cloneDeep } from 'lodash';
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceInstance } from "./resource-instance";
-import { NegativeIntGenerator } from "./phantom-generator/negative-int-generator";
-import { ResourceParamDefaultFromPayload } from "./resource-param-default";
-import { DefaultHeaderBuilder } from "./header-builder/default-header-builder";
-import { DefaultUrlBuilder } from "./url-builder/default-url-builder";
-import { ResourceNoopCache } from "../cache/resource-noop-cache";
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceInstance } from './resource-instance';
+import { NegativeIntGenerator } from './phantom-generator/negative-int-generator';
+import { ResourceParamDefaultFromPayload } from './resource-param-default';
+import { DefaultHeaderBuilder } from './header-builder/default-header-builder';
+import { DefaultUrlBuilder } from './url-builder/default-url-builder';
+import { ResourceNoopCache } from '../cache/resource-noop-cache';
 
 
 export const DEFAULT_RESOURCE_CONFIGURATION_OPTIONS: ResourceConfigurationOptions = {
@@ -53,8 +53,8 @@ export function ResourceConfiguration(resourceOptions?: ResourceConfigurationOpt
              * @type {ResourceConfigurationOptions}
              */
             options: ResourceConfigurationOptions = Object.assign(
-                {}, 
-                cloneDeep(DEFAULT_RESOURCE_CONFIGURATION_OPTIONS), 
+                {},
+                cloneDeep(DEFAULT_RESOURCE_CONFIGURATION_OPTIONS),
                 resourceOptions
             );
 

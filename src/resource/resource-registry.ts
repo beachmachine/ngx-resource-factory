@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
-import { ResourceBase } from "./resource";
+import { ResourceBase } from './resource';
 
 
 /**

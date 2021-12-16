@@ -1,4 +1,4 @@
-import { ResourceInstance } from "../resource-instance";
+import { ResourceInstance } from '../resource-instance';
 
 
 /**

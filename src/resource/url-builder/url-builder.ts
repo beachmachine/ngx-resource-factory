@@ -1,4 +1,4 @@
-import { ResourceActionOptions } from "../resource-action-options";
+import { ResourceActionOptions } from '../resource-action-options';
 
 
 /**

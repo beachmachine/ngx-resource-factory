@@ -1,18 +1,18 @@
-import { Injectable, Type } from "@angular/core";
-import { async, inject, TestBed } from "@angular/core/testing";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { Injectable, Type } from '@angular/core';
+import { inject, TestBed, waitForAsync  } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Resource } from "./resource";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceConfiguration } from "./resource-configuration";
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
-import { ResourceAction } from "./resource-action";
-import { ResourceActionMethod } from "./resource-action-method";
-import { ResourceParamDefault } from "./resource-param-default";
-import { ResourceRegistry } from "./resource-registry";
-import { NgxResourceFactoryModule } from "../module";
+import { Resource } from './resource';
+import { ResourceInstance } from './resource-instance';
+import { ResourceConfiguration } from './resource-configuration';
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
+import { ResourceAction } from './resource-action';
+import { ResourceActionMethod } from './resource-action-method';
+import { ResourceParamDefault } from './resource-param-default';
+import { ResourceRegistry } from './resource-registry';
+import { NgxResourceFactoryModule } from '../module';
 
 
 /**
@@ -43,7 +43,7 @@ describe('ResourceParamDefault', () => {
      * @returns {T}
      */
     function createResource<T extends TestResource>(cls: Type<T>, resourceConfiguration: ResourceConfigurationOptions): T {
-        let
+        const
             registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
@@ -68,7 +68,7 @@ describe('ResourceParamDefault', () => {
     );
 
     it('Does set custom default params from strings',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificResource extends TestResource {
@@ -81,7 +81,7 @@ describe('ResourceParamDefault', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:p/',
@@ -100,7 +100,7 @@ describe('ResourceParamDefault', () => {
     );
 
     it('Does set custom default params from functions',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificResource extends TestResource {
@@ -113,7 +113,7 @@ describe('ResourceParamDefault', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:p/',

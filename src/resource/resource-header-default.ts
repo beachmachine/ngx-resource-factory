@@ -1,4 +1,4 @@
-import { ResourceActionOptions } from "./resource-action-options";
+import { ResourceActionOptions } from './resource-action-options';
 
 
 /**
@@ -29,8 +29,7 @@ export class ResourceHeaderDefault {
     getValue(query: Object, payload: Object, options: ResourceActionOptions): string {
         if (this._value instanceof Function) {
             return this._value(query, payload, options);
-        }
-        else {
+        } else {
             return this._value;
         }
     }
@@ -52,7 +51,7 @@ export class ResourceHeaderDefault {
 export class ResourceHeaderDefaultFromPayload extends ResourceHeaderDefault {
 
     constructor(key: string, value: string) {
-        super(key, (query: Object, payload: Object) => payload && payload[value] !== undefined ? '' + payload[value] : null);
+        super(key, (_query: Object, payload: Object) => payload && payload[value] !== undefined ? '' + payload[value] : null);
     }
 
 }

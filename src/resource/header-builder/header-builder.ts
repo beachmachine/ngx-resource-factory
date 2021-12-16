@@ -1,6 +1,6 @@
-import { HttpHeaders } from "@angular/common/http";
+import { HttpHeaders } from '@angular/common/http';
 
-import { ResourceActionOptions } from "../resource-action-options";
+import { ResourceActionOptions } from '../resource-action-options';
 
 
 /**

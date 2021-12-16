@@ -1,5 +1,5 @@
-import { ResourceActionOptions } from "./resource-action-options";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
+import { ResourceActionOptions } from './resource-action-options';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
 
 
 export const DEFAULT_RESOURCE_ACTION_OPTIONS: ResourceActionOptions = {

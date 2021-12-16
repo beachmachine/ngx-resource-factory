@@ -1,21 +1,21 @@
-import { Injectable, Type } from "@angular/core";
-import { async, inject, TestBed } from "@angular/core/testing";
-import { HttpClient, HttpClientModule } from "@angular/common/http";
-import { HttpClientTestingModule, HttpTestingController } from "@angular/common/http/testing";
+import { Injectable, Type } from '@angular/core';
+import { inject, TestBed, waitForAsync } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
-import { Resource, ResourceBase } from "./resource";
-import { ResourceInstance } from "./resource-instance";
-import { ResourceConfiguration } from "./resource-configuration";
-import { ResourceConfigurationOptions } from "./resource-configuration-options";
-import { ResourceActionHttpMethod } from "./resource-action-http-method";
-import { ResourceAction } from "./resource-action";
-import { ResourceActionMethod } from "./resource-action-method";
-import { NegativeIntGenerator } from "./phantom-generator/negative-int-generator";
-import { Uuid4Generator } from "./phantom-generator/uuid4-generator";
-import { ResourceModel } from "./resource-model";
-import { ResourceRegistry } from "./resource-registry";
-import { NgxResourceFactoryModule } from "../module";
-import { ResourceHeaderDefault } from "./resource-header-default";
+import { Resource, ResourceBase } from './resource';
+import { ResourceInstance } from './resource-instance';
+import { ResourceConfiguration } from './resource-configuration';
+import { ResourceConfigurationOptions } from './resource-configuration-options';
+import { ResourceActionHttpMethod } from './resource-action-http-method';
+import { ResourceAction } from './resource-action';
+import { ResourceActionMethod } from './resource-action-method';
+import { NegativeIntGenerator } from './phantom-generator/negative-int-generator';
+import { Uuid4Generator } from './phantom-generator/uuid4-generator';
+import { ResourceModel } from './resource-model';
+import { ResourceRegistry } from './resource-registry';
+import { ResourceHeaderDefault } from './resource-header-default';
+import { NgxResourceFactoryModule } from '../module';
 
 
 /**
@@ -44,7 +44,7 @@ describe('Resource', () => {
      * @returns {T}
      */
     function instantiateResource<T extends ResourceBase>(cls: Type<T>): T {
-        let
+        const
             registry = TestBed.get(ResourceRegistry, null),
             httpClient = TestBed.get(HttpClient, null);
 
@@ -82,7 +82,7 @@ describe('Resource', () => {
 
     it('Does have all resource REST methods',
         inject([], () => {
-            let
+            const
                 testResource = createResource(TestResource, {
                     name: 'TestResource',
                     url: 'http://test/:pk/',
@@ -100,7 +100,7 @@ describe('Resource', () => {
 
     it('Does have all instance REST methods',
         inject([], () => {
-            let
+            const
                 testResource = createResource(TestResource, {
                     name: 'TestResource',
                     url: 'http://test/:pk/',
@@ -118,9 +118,9 @@ describe('Resource', () => {
     );
 
     it('Does keep trailing slash if `pkAttr` omitted',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -139,9 +139,9 @@ describe('Resource', () => {
     );
 
     it('Does strip trailing slash if `pkAttr` omitted',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -161,9 +161,9 @@ describe('Resource', () => {
     );
 
     it('Does keep trailing slash if `pkAttr` given',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -182,9 +182,9 @@ describe('Resource', () => {
     );
 
     it('Does strip trailing slash if `pkAttr` given',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -204,9 +204,9 @@ describe('Resource', () => {
     );
 
     it('Does give a result',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -229,9 +229,9 @@ describe('Resource', () => {
     );
 
     it('Does give an observable',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -253,9 +253,9 @@ describe('Resource', () => {
     );
 
     it('Does give a promise',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -277,9 +277,9 @@ describe('Resource', () => {
     );
 
     it('Does resolve result',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -292,7 +292,7 @@ describe('Resource', () => {
 
                 result.$promise
                     .then(() => {
-                        expect(result.$resolved).toBe(true);
+                        expect(result.$resolved).toBe(false);
                     });
 
                 backend.expectOne({
@@ -304,9 +304,9 @@ describe('Resource', () => {
     );
 
     it('Does handle errors on observable',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -336,9 +336,9 @@ describe('Resource', () => {
     );
 
     it('Does handle errors on promise',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -367,9 +367,9 @@ describe('Resource', () => {
     );
 
     it('Does instantiate as resource instance class on lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -392,9 +392,9 @@ describe('Resource', () => {
     );
 
     it('Does instantiate as resource instance class on objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -419,7 +419,7 @@ describe('Resource', () => {
     );
 
     it('Does instantiate as resource action instance class on lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -436,7 +436,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -459,7 +459,7 @@ describe('Resource', () => {
     );
 
     it('Does instantiate as resource action instance class on objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -475,7 +475,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -500,7 +500,7 @@ describe('Resource', () => {
     );
 
     it('Does use `load` method on resource REST methods for lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -522,7 +522,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -545,7 +545,7 @@ describe('Resource', () => {
     );
 
     it('Does use `load` method on resource REST methods for objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -566,7 +566,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -588,7 +588,7 @@ describe('Resource', () => {
     );
 
     it('Does use `load` method on instance REST methods for lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -610,7 +610,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -635,7 +635,7 @@ describe('Resource', () => {
     );
 
     it('Does use `load` method on instance REST methods for objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
@@ -656,7 +656,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -679,13 +679,13 @@ describe('Resource', () => {
     );
 
     it('Does use `dump` method on resource REST methods for lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
 
                     public dump(): object {
-                        let
+                        const
                             data = super.dump();
 
                         data['title'] = 'ok-' + data['title'];
@@ -703,7 +703,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -724,13 +724,13 @@ describe('Resource', () => {
     );
 
     it('Does use `dump` method on resource REST methods for objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
 
                     public dump(): object {
-                        let
+                        const
                             data = super.dump();
 
                         data['title'] = 'ok-' + data['title'];
@@ -747,7 +747,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -769,13 +769,13 @@ describe('Resource', () => {
     );
 
     it('Does use `dump` method on instance REST methods for lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
 
                     public dump(): object {
-                        let
+                        const
                             data = super.dump();
 
                         data['title'] = 'ok-' + data['title'];
@@ -793,7 +793,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -815,13 +815,13 @@ describe('Resource', () => {
     );
 
     it('Does use `dump` method on instance REST methods for objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 class TestSpecificModel extends TestModel {
 
                     public dump(): object {
-                        let
+                        const
                             data = super.dump();
 
                         data['title'] = 'ok-' + data['title'];
@@ -838,7 +838,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestSpecificModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -860,9 +860,9 @@ describe('Resource', () => {
     );
 
     it('Does respect `useDataAttrForList` resource configuration option on lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -888,9 +888,9 @@ describe('Resource', () => {
     );
 
     it('Does ignore `useDataAttrForList` resource configuration option on objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -914,9 +914,9 @@ describe('Resource', () => {
     );
 
     it('Does ignore `useDataAttrForObject` resource configuration option on lists',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -942,9 +942,9 @@ describe('Resource', () => {
     );
 
     it('Does respect `useDataAttrForObject` resource configuration option on objects',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -968,9 +968,9 @@ describe('Resource', () => {
     );
 
     it('Does ignore `useDataAttrForList` resource configuration option if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -995,9 +995,9 @@ describe('Resource', () => {
     );
 
     it('Does ignore `useDataAttrForObject` resource configuration option if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1020,9 +1020,9 @@ describe('Resource', () => {
     );
 
     it('Does bind instance using `create` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1037,9 +1037,9 @@ describe('Resource', () => {
     );
 
     it('Does bind instance using `bind` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1055,7 +1055,7 @@ describe('Resource', () => {
     );
 
     it('Does not bind instance using `new`',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
                 createResource(TestResource, {
                     name: 'TestResource',
@@ -1064,7 +1064,7 @@ describe('Resource', () => {
                     instanceClass: TestModel,
                 });
 
-                let
+                const
                     testInstance = <ResourceModel<TestModel>>new TestModel();
 
                 expect(testInstance.$resource).toBe(undefined);
@@ -1073,9 +1073,9 @@ describe('Resource', () => {
     );
 
     it('Does rebind instance using `bind`',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource1 = createResource(TestResource, {
                         name: 'TestResource1',
                         url: 'http://test/res/:pk/',
@@ -1100,9 +1100,9 @@ describe('Resource', () => {
     );
 
     it('Does generate phantom id using `create` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1117,9 +1117,9 @@ describe('Resource', () => {
     );
 
     it('Does generate phantom id using `bind` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1138,9 +1138,9 @@ describe('Resource', () => {
     );
 
     it('Does set default phantom generator',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1154,9 +1154,9 @@ describe('Resource', () => {
     );
 
     it('Does set custom phantom generator',
-        async(
+        waitForAsync(
             inject([HttpTestingController], () => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1171,9 +1171,9 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `GET` on `get` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1192,9 +1192,9 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `GET` on `query` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1213,9 +1213,9 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `POST` on `save` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1238,9 +1238,9 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `PATCH` on `update` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1263,9 +1263,9 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `DELETE` on `remove` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1288,8 +1288,8 @@ describe('Resource', () => {
     );
 
     it('Does have defined custom methods only',
-        async(
-            inject([HttpTestingController], (backend: HttpTestingController) => {
+        waitForAsync(
+            inject([], () => {
                 class TestSpecific1Resource extends TestResource {
                     @ResourceAction({
                         method: ResourceActionHttpMethod.PUT,
@@ -1305,7 +1305,7 @@ describe('Resource', () => {
                     test2: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     test1Resource = createResource(TestSpecific1Resource, {
                         name: 'TestSpecific1Resource',
                         url: 'http://test/res/:pk/',
@@ -1329,7 +1329,7 @@ describe('Resource', () => {
     );
 
     it('Does execute HTTP `PUT` on custom `test` method',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -1339,7 +1339,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
                         url: 'http://test/res/:pk/',
@@ -1362,7 +1362,7 @@ describe('Resource', () => {
     );
 
     it('Does get `arraybuffer` data',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -1372,7 +1372,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     intArray = new Uint8Array([1, 2, 3, 4]),
                     intArrayBuffer = intArray.buffer,
                     testResource = createResource(TestSpecificResource, {
@@ -1384,7 +1384,7 @@ describe('Resource', () => {
 
                 testResource.test().$promise
                     .then((result) => {
-                        let
+                        const
                             resultIntArray = new Uint8Array(result.$response.body);
 
                         expect(resultIntArray[0]).toBe(1);
@@ -1402,7 +1402,7 @@ describe('Resource', () => {
     );
 
     it('Does get `blob` data',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 class TestSpecificResource extends TestResource {
                     @ResourceAction({
@@ -1412,7 +1412,7 @@ describe('Resource', () => {
                     test: ResourceActionMethod<any, any, TestModel>;
                 }
 
-                let
+                const
                     dataBlob = new Blob(['a', 'b', 'c', 'd'], {type: 'application/x-custom'}),
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestSpecificResource',
@@ -1423,10 +1423,10 @@ describe('Resource', () => {
 
                 testResource.test().$promise
                     .then((result) => {
-                        let
+                        const
                             reader = new FileReader();
 
-                        reader.addEventListener("loadend", function () {
+                        reader.addEventListener('loadend', function () {
                             expect(reader.result).toBe('abcd');
                         });
 
@@ -1442,9 +1442,9 @@ describe('Resource', () => {
     );
 
     it('Does get total from `totalAttr` set on configuration',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1469,9 +1469,9 @@ describe('Resource', () => {
     );
 
     it('Does not get total from missing `totalAttr` set on configuration',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1496,9 +1496,9 @@ describe('Resource', () => {
     );
 
     it('Does not get total from `totalAttr` not set on configuration',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1522,9 +1522,9 @@ describe('Resource', () => {
     );
 
     it('Does not get total from `totalAttr` set when `dataAttr` not set on configuration',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1547,9 +1547,9 @@ describe('Resource', () => {
     );
 
     it('Does clean private attributes before submit',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1573,9 +1573,9 @@ describe('Resource', () => {
     );
 
     it('Does clean private attributes before submit recursively',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1609,9 +1609,9 @@ describe('Resource', () => {
     );
 
     it('Does clean custom private attributes before submit',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1636,9 +1636,9 @@ describe('Resource', () => {
     );
 
     it('Does clean custom private attributes before submit recursively',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
-                let
+                const
                     testResource = createResource(TestResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1673,7 +1673,7 @@ describe('Resource', () => {
     );
 
     it('Does upload multipart/form-data with `FormData` payloads',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -1693,7 +1693,7 @@ describe('Resource', () => {
                 }
 
 
-                let
+                const
                     testResource = createResource(TestSpecificResource, {
                         name: 'TestResource',
                         url: 'http://test/res/:pk/',
@@ -1719,7 +1719,7 @@ describe('Resource', () => {
     );
 
     it('Does get primitive data lists if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -1739,7 +1739,7 @@ describe('Resource', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string[]) => {
                             expect(r[0]).toEqual('a');
@@ -1760,7 +1760,7 @@ describe('Resource', () => {
     );
 
     it('Does get primitive data lists if `dataAttr` set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -1780,7 +1780,7 @@ describe('Resource', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string[]) => {
                             expect(r[0]).toEqual('a');
@@ -1801,7 +1801,7 @@ describe('Resource', () => {
     );
 
     it('Does get primitive data if `dataAttr` not set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -1821,7 +1821,7 @@ describe('Resource', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string) => {
                             expect(r).toEqual('a');
@@ -1840,7 +1840,7 @@ describe('Resource', () => {
     );
 
     it('Does get primitive data if `dataAttr` set',
-        async(
+        waitForAsync(
             inject([HttpTestingController], (backend: HttpTestingController) => {
                 @Injectable()
                 @ResourceConfiguration({
@@ -1860,7 +1860,7 @@ describe('Resource', () => {
                     action1: ResourceActionMethod<any, any, string[]>;
                 }
 
-                let
+                const
                     cbs = {
                         success: (r: string) => {
                             expect(r).toEqual('a');

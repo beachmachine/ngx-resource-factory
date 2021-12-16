@@ -1,6 +1,6 @@
-import { HttpResponse } from "@angular/common/http";
+import { HttpResponse } from '@angular/common/http';
 
-import { ResourceBase } from "../resource/resource";
+import { ResourceBase } from '../resource/resource';
 
 
 /**
