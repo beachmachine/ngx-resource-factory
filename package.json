@@ -61,7 +61,7 @@
     "typescript": "^4.4.4",
     "uglifyjs": "^2.4.11",
     "uglifyjs-webpack-plugin": "^1.2.2",
-    "webpack": "^3.11.0",
+    "webpack": "^5.75.0",
     "zone.js": "^0.11.3"
   },
   "peerDependencies": {
